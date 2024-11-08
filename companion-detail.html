@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玩伴详情</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background-color: #fff;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .content {
+            margin-top: 60px;
+            padding-bottom: 70px;
+        }
+
+        /* 商品详情样式 */
+        .companion-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .companion-info {
+            padding: 20px;
+        }
+
+        .companion-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .tag-personality {
+            background: #E3F2FD;
+            color: #2196F3;
+        }
+
+        .tag-age {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        .tag-gender {
+            background: #E1F5FE;
+            color: #03A9F4;
+        }
+
+        .price {
+            color: #E41D1D;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .price small {
+            font-size: 14px;
+            color: #999;
+            font-weight: normal;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* 底部按钮 */
+        .bottom-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            background: #fff;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+        }
+
+        .contact-button, .book-button {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 25px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .contact-button {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .book-button {
+            background: #2196F3;
+            color: white;
+            border: none;
+        }
+
+        /* 日期选择弹窗样式 */
+        .date-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .date-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+
+        .date-content.show {
+            transform: translateY(0);
+        }
+
+        .date-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .date-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .date-close {
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .date-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .date-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .date-cell.available {
+            background: #E3F2FD;
+            color: #2196F3;
+        }
+
+        .date-cell.selected {
+            background: #2196F3;
+            color: white;
+        }
+
+        .date-cell.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .confirm-date {
+            width: 100%;
+            padding: 12px 0;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <h1 class="header-title">玩伴详情</h1>
+    </div>
+
+    <div class="content">
+        <img src="" alt="玩伴照片" class="companion-image" id="companionImage">
+        <div class="companion-info">
+            <div class="companion-name" id="companionName"></div>
+            <div class="tags" id="companionTags"></div>
+            <div class="price" id="companionPrice"></div>
+            <div class="description">
+                我是一个活泼开朗的女生，热爱旅行和摄影。熟悉本地各个景点和美食，可以为您提供专业的导览和拍照服务。希望能带给您愉快的旅行体验！
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-buttons">
+        <div class="contact-button" onclick="contactCompanion()">
+            <i class="fas fa-comments"></i> 联系玩伴
+        </div>
+        <div class="book-button" onclick="showDatePicker()">
+            立即预约
+        </div>
+    </div>
+
+    <!-- 日期选择弹窗 -->
+    <div class="date-modal" id="dateModal">
+        <div class="date-content">
+            <div class="date-header">
+                <div class="date-title">选择出行日期</div>
+                <div class="date-close" onclick="closeDatePicker()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="date-grid" id="dateGrid"></div>
+            <button class="confirm-date" onclick="confirmDate()">确认日期</button>
+        </div>
+    </div>
+
+    <script>
+        // 获取URL参数
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // 页面加载时初始化数据
+        document.addEventListener('DOMContentLoaded', function() {
+            const id = getQueryParam('id');
+            const name = getQueryParam('name');
+            const price = getQueryParam('price');
+            const image = getQueryParam('image');
+            const tags = JSON.parse(decodeURIComponent(getQueryParam('tags') || '[]'));
+
+            document.getElementById('companionName').textContent = name;
+            document.getElementById('companionPrice').innerHTML = `${price}<small>/小时</small>`;
+            document.getElementById('companionImage').src = image;
+
+            const tagsContainer = document.getElementById('companionTags');
+            tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = `tag tag-${tag.type}`;
+                tagElement.textContent = tag.text;
+                tagsContainer.appendChild(tagElement);
+            });
+        });
+
+        // 显示日期选择器
+        function showDatePicker() {
+            const modal = document.getElementById('dateModal');
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.querySelector('.date-content').classList.add('show');
+            }, 10);
+            generateDateGrid();
+        }
+
+        // 关闭日期选择器
+        function closeDatePicker() {
+            const modal = document.getElementById('dateModal');
+            modal.querySelector('.date-content').classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // 生成日期网格
+        function generateDateGrid() {
+            const grid = document.getElementById('dateGrid');
+            grid.innerHTML = '';
+            
+            const today = new Date();
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(today.getFullYear(), today.getMonth(), i);
+                const cell = document.createElement('div');
+                cell.className = 'date-cell';
+                cell.textContent = i;
+                
+                if (date < today) {
+                    cell.classList.add('disabled');
+                } else {
+                    cell.classList.add('available');
+                    cell.onclick = function() {
+                        document.querySelectorAll('.date-cell.selected').forEach(el => el.classList.remove('selected'));
+                        this.classList.add('selected');
+                    };
+                }
+                
+                grid.appendChild(cell);
+            }
+        }
+
+        // 确认日期
+        function confirmDate() {
+            const selectedDate = document.querySelector('.date-cell.selected');
+            if (!selectedDate) {
+                alert('请选择出行日期');
+                return;
+            }
+            
+            const date = new Date();
+            date.setDate(parseInt(selectedDate.textContent));
+            const formattedDate = date.toLocaleDateString('zh-CN');
+            
+            // 获取服务信息
+            const serviceName = document.getElementById('companionName').textContent;
+            const servicePrice = document.getElementById('companionPrice').textContent.split('/')[0];
+            
+            // 跳转到支付页面
+            const params = new URLSearchParams({
+                service: serviceName,
+                date: formattedDate,
+                amount: servicePrice.replace('¥', '')
+            });
+            
+            window.location.href = `payment.html?${params.toString()}`;
+        }
+
+        // 修改联系玩伴函数
+        function contactCompanion() {
+            // 获取玩伴信息
+            const companionName = document.getElementById('companionName').textContent;
+            const companionImage = document.getElementById('companionImage').src;
+            
+            // 创建聊天会话信息
+            const chatInfo = {
+                id: Date.now().toString(),
+                type: 'companion',
+                name: companionName,
+                avatar: companionImage,
+                lastMessage: '您好，请问有什么可以帮您？',
+                time: new Date().toLocaleTimeString('zh-CN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false
+                })
+            };
+            
+            // 保存聊天会话到本地存储
+            let chatList = JSON.parse(localStorage.getItem('chatList') || '[]');
+            // 检查是否已存在该玩伴的聊天
+            const existingChatIndex = chatList.findIndex(chat => chat.name === companionName);
+            if (existingChatIndex !== -1) {
+                chatList.splice(existingChatIndex, 1);
+            }
+            chatList.unshift(chatInfo);
+            localStorage.setItem('chatList', JSON.stringify(chatList));
+            
+            // 跳转到聊天详情页
+            window.location.href = `chat-detail.html?id=${chatInfo.id}`;
+        }
+    </script>
+</body>
+</html> 

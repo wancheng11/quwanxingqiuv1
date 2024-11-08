@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* 顶部用户信息区域 */
+        .user-header {
+            background: linear-gradient(135deg, #E41D1D, #FF6B6B);
+            padding: 30px 20px;
+            color: white;
+            position: relative;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .edit-avatar {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .vip-level {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .user-id {
+            font-size: 14px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 用户资产区域 */
+        .user-assets {
+            background: white;
+            margin: -25px 15px 15px;
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .asset-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .asset-item:hover {
+            background: #f9f9f9;
+            transform: translateY(-2px);
+        }
+
+        .asset-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #E41D1D;
+            margin-bottom: 5px;
+        }
+
+        .asset-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 功能菜单 */
+        .menu-section {
+            background: white;
+            margin: 15px;
+            border-radius: 15px;
+            padding: 5px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .menu-title {
+            font-size: 15px;
+            color: #666;
+            padding: 15px 0 10px;
+            font-weight: 500;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:active {
+            background: #f9f9f9;
+        }
+
+        .menu-icon {
+            width: 22px;
+            text-align: center;
+            margin-right: 12px;
+            color: #E41D1D;
+            font-size: 18px;
+        }
+
+        .menu-label {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .menu-arrow {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* 退出登录按钮 */
+        .logout-button {
+            margin: 25px 15px;
+            padding: 14px 0;
+            background: white;
+            color: #E41D1D;
+            border: none;
+            border-radius: 25px;
+            width: calc(100% - 30px);
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 未登录状态 */
+        .not-logged-in {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .login-button {
+            display: inline-block;
+            padding: 10px 35px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 15px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.98);
+        }
+
+        /* 添加图标颜色变化 */
+        .menu-item:nth-child(1) .menu-icon { color: #2196F3; }
+        .menu-item:nth-child(2) .menu-icon { color: #4CAF50; }
+        .menu-item:nth-child(3) .menu-icon { color: #FF9800; }
+    </style>
+</head>
+<body>
+    <div class="user-header">
+        <div class="user-info">
+            <div class="avatar-container">
+                <img src="https://picsum.photos/200/200" alt="头像" class="avatar" id="userAvatar">
+                <div class="edit-avatar" onclick="editAvatar()">
+                    <i class="fas fa-camera" style="color: white; font-size: 12px;"></i>
+                </div>
+            </div>
+            <div class="user-details">
+                <div class="user-name">
+                    用户名称
+                    <span class="vip-level">VIP1</span>
+                </div>
+                <div class="user-id">
+                    <i class="fas fa-id-card" style="font-size: 14px;"></i>
+                    ID: 888888
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-assets">
+        <div class="asset-item" onclick="goToWallet()">
+            <div class="asset-amount">¥0.00</div>
+            <div class="asset-label">钱包</div>
+        </div>
+        <div class="asset-item" onclick="goToPoints()">
+            <div class="asset-amount">0</div>
+            <div class="asset-label">积分</div>
+        </div>
+        <div class="asset-item" onclick="goToCoupons()">
+            <div class="asset-amount">0</div>
+            <div class="asset-label">优惠券</div>
+        </div>
+        <div class="asset-item" onclick="goToVIP()">
+            <div class="asset-amount">VIP1</div>
+            <div class="asset-label">会员等级</div>
+        </div>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-title">我的服务</div>
+        <div class="menu-item" onclick="goToOrders()">
+            <i class="fas fa-clipboard-list menu-icon"></i>
+            <span class="menu-label">我的订单</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="goToAddress()">
+            <i class="fas fa-map-marker-alt menu-icon"></i>
+            <span class="menu-label">收货地址</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="goToFavorites()">
+            <i class="fas fa-heart menu-icon"></i>
+            <span class="menu-label">我的收藏</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-title">账号设置</div>
+        <div class="menu-item" onclick="editProfile()">
+            <i class="fas fa-user menu-icon" style="color: #9C27B0;"></i>
+            <span class="menu-label">个人资料</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="changePassword()">
+            <i class="fas fa-lock menu-icon" style="color: #FF5722;"></i>
+            <span class="menu-label">修改密码</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="goToSecurity()">
+            <i class="fas fa-shield-alt menu-icon" style="color: #673AB7;"></i>
+            <span class="menu-label">账号安全</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-title">其他服务</div>
+        <div class="menu-item" onclick="goToHelp()">
+            <i class="fas fa-question-circle menu-icon" style="color: #00BCD4;"></i>
+            <span class="menu-label">帮助中心</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="goToFeedback()">
+            <i class="fas fa-comment-dots menu-icon" style="color: #8BC34A;"></i>
+            <span class="menu-label">意见反馈</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+        <div class="menu-item" onclick="goToAbout()">
+            <i class="fas fa-info-circle menu-icon" style="color: #607D8B;"></i>
+            <span class="menu-label">关于我们</span>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+        </div>
+    </div>
+
+    <button class="logout-button" onclick="logout()">退出登录</button>
+
+    <script>
+        // 修改编辑头像���数
+        function editAvatar() {
+            // 创建文件输入元素
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const newAvatarUrl = e.target.result;
+                        // 更新头像显示
+                        document.getElementById('userAvatar').src = newAvatarUrl;
+                        
+                        // 更新本地存储中的用户信息
+                        const userInfo = getUserInfo();
+                        if (userInfo) {
+                            userInfo.avatarUrl = newAvatarUrl;
+                            localStorage.setItem('currentUser', JSON.stringify(userInfo));
+                            
+                            // 同时更新注册信息中的头像
+                            const registeredInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                            registeredInfo.avatarUrl = newAvatarUrl;
+                            localStorage.setItem('userInfo', JSON.stringify(registeredInfo));
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        // 修改获取用户信息函数
+        function getUserInfo() {
+            try {
+                // 优先获取当前登录用户信息
+                const currentUserStr = localStorage.getItem('currentUser');
+                if (currentUserStr) {
+                    const currentUser = JSON.parse(currentUserStr);
+                    // 如果有自定义头像则使用自定义头像，否则不设置默认头像
+                    return {
+                        ...currentUser,
+                        avatarUrl: currentUser.avatarUrl || null
+                    };
+                }
+                
+                // 如果没有当前用户信息，尝试获取注册信息
+                const userInfoStr = localStorage.getItem('userInfo');
+                if (userInfoStr) {
+                    const userInfo = JSON.parse(userInfoStr);
+                    return {
+                        ...userInfo,
+                        avatarUrl: userInfo.avatarUrl || null
+                    };
+                }
+            } catch (e) {
+                console.error('获取用户信息失败:', e);
+            }
+            return null;
+        }
+
+        // 修改页面加载时的初始化函数
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取用户信息
+            const userInfo = getUserInfo();
+            if (!userInfo || !localStorage.getItem('isLoggedIn')) {
+                showLoginPrompt();
+                return;
+            }
+
+            // 更新用户信息显示
+            const avatarElement = document.getElementById('userAvatar');
+            if (userInfo.avatarUrl) {
+                // 只有当用户设置了自定义头像时才设置src
+                avatarElement.src = userInfo.avatarUrl;
+            } else {
+                // 如果没有自定义头像，可以设置一个默认头像或保持为空
+                avatarElement.src = 'path/to/default-avatar.png';  // 设置默认头像
+            }
+
+            document.querySelector('.user-name').innerHTML = `
+                ${userInfo.username}
+                <span class="vip-level">VIP1</span>
+            `;
+            document.querySelector('.user-id').innerHTML = `
+                <i class="fas fa-id-card" style="font-size: 14px;"></i>
+                ID: ${userInfo.userId}
+            `;
+
+            // 更新资产信息
+            document.querySelector('.asset-amount').textContent = '¥0.00';
+            document.querySelectorAll('.asset-amount')[1].textContent = '0';
+            document.querySelectorAll('.asset-amount')[2].textContent = '0';
+            document.querySelectorAll('.asset-amount')[3].textContent = 'VIP1';
+        });
+
+        // 显示登录提示
+        function showLoginPrompt() {
+            document.body.innerHTML = `
+                <div class="user-header">
+                    <div class="not-logged-in">
+                        <h2 style="color: white;">您还未登录</h2>
+                        <a href="login.html" class="login-button">立即登录</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 跳转函数
+        function goToWallet() {
+            window.location.href = 'wallet.html';
+        }
+
+        function goToPoints() {
+            window.location.href = 'points.html';
+        }
+
+        function goToCoupons() {
+            window.location.href = 'coupons.html';
+        }
+
+        function goToVIP() {
+            window.location.href = 'vip.html';
+        }
+
+        function goToOrders() {
+            window.location.href = 'orders.html';
+        }
+
+        function goToAddress() {
+            window.location.href = 'address.html';
+        }
+
+        function goToFavorites() {
+            window.location.href = 'favorites.html';
+        }
+
+        function editProfile() {
+            window.location.href = 'edit-profile.html';
+        }
+
+        function changePassword() {
+            window.location.href = 'change-password.html';
+        }
+
+        function goToSecurity() {
+            window.location.href = 'security.html';
+        }
+
+        function goToHelp() {
+            window.location.href = 'help.html';
+        }
+
+        function goToFeedback() {
+            window.location.href = 'feedback.html';
+        }
+
+        function goToAbout() {
+            window.location.href = 'about.html';
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                // 清除登录信息
+                localStorage.removeItem('userInfo');
+                // 跳转到登录页
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html> 

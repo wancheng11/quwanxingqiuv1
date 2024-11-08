@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .content {
+            margin-top: 60px;
+            padding: 15px;
+        }
+
+        .order-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+
+        .order-number {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+
+        .order-status {
+            font-size: 13px;
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .order-status.completed {
+            color: #4CAF50;
+        }
+
+        .order-status.cancelled {
+            color: #999;
+        }
+
+        .order-info {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .order-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin-right: 12px;
+            object-fit: cover;
+        }
+
+        .order-details {
+            flex: 1;
+        }
+
+        .order-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .order-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .order-price {
+            color: #E41D1D;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .order-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .order-button {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background: #2196F3;
+            color: white;
+            border: none;
+        }
+
+        .secondary-button {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-orders i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .no-orders-text {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .go-shopping {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #2196F3;
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .order-type {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .order-type-label {
+            color: #666;
+            margin-right: 4px;
+        }
+
+        .order-type-value {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <h1 class="header-title">我的订单</h1>
+    </div>
+
+    <div class="content">
+        <!-- 修改订单卡片部分 -->
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <div class="order-number">订单编号：XK324315869</div>
+                    <div class="order-type">
+                        <span class="order-type-label">购买项目：</span>
+                        <span class="order-type-value">城市陪玩</span>
+                    </div>
+                </div>
+                <span class="order-status">待使用</span>
+            </div>
+            <div class="order-info">
+                <img src="https://picsum.photos/200/200?random=1" alt="服务图片" class="order-image">
+                <div class="order-details">
+                    <div class="order-title">小甜甜</div>
+                    <div class="order-date">服务日期：2024/11/19</div>
+                    <div class="order-price">¥188</div>
+                </div>
+            </div>
+            <div class="order-actions">
+                <button class="order-button secondary-button" onclick="contactService()">联系客服</button>
+                <button class="order-button primary-button" onclick="viewOrderDetail()">查看详情</button>
+            </div>
+        </div>
+
+        <!-- 添加 JavaScript -->
+        <script>
+            // 修改页面加载时的初始化函数
+            document.addEventListener('DOMContentLoaded', function() {
+                // 获取当前登录用户信息
+                const userInfo = getUserInfo();
+                if (!userInfo) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 获取用户订单列表
+                const orders = getUserOrders(userInfo.userId);
+                displayOrders(orders);
+
+                // 添加右滑返回功能
+                setupSwipeBack();
+            });
+
+            // 获取用户信息函数
+            function getUserInfo() {
+                try {
+                    const userInfoStr = localStorage.getItem('currentUser');
+                    if (userInfoStr) {
+                        return JSON.parse(userInfoStr);
+                    }
+                } catch (e) {
+                    console.error('获取用户信息失败:', e);
+                }
+                return null;
+            }
+
+            // 获取用户订单列表
+            function getUserOrders(userId) {
+                try {
+                    // 从localStorage获取所有订单
+                    const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+                    // 获取最近支付的订单
+                    const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
+                    
+                    // 如果有新支付的订单，添加到订单列表中
+                    if (lastOrder) {
+                        // 检查订单是否已存在
+                        const existingOrder = allOrders.find(order => order.orderNumber === lastOrder.orderNumber);
+                        if (!existingOrder) {
+                            // 添加用户ID和其他必要信息
+                            lastOrder.userId = userId;
+                            lastOrder.createTime = new Date().toISOString();
+                            allOrders.unshift(lastOrder);
+                            // 保存更新后的订单列表
+                            localStorage.setItem('orders', JSON.stringify(allOrders));
+                            // 清除最近支付的订单信息
+                            localStorage.removeItem('lastOrder');
+                        }
+                    }
+                    
+                    // 过滤出当前用户的订单
+                    return allOrders.filter(order => order.userId === userId);
+                } catch (e) {
+                    console.error('获取订单列表失败:', e);
+                    return [];
+                }
+            }
+
+            // 显示订单列表
+            function displayOrders(orders) {
+                const content = document.querySelector('.content');
+                
+                if (orders.length === 0) {
+                    content.innerHTML = `
+                        <div class="no-orders">
+                            <i class="fas fa-inbox"></i>
+                            <div class="no-orders-text">暂无订单</div>
+                            <a href="main.html" class="go-shopping">去逛逛</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 按时间倒序排序订单
+                orders.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+
+                // 生成订单HTML
+                const ordersHTML = orders.map(order => `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-number">订单编号：${order.orderNumber}</div>
+                                <div class="order-type">
+                                    <span class="order-type-label">购买项目：</span>
+                                    <span class="order-type-value">${order.type || '城市陪玩'}</span>
+                                </div>
+                            </div>
+                            <span class="order-status">${order.status}</span>
+                        </div>
+                        <div class="order-info">
+                            <img src="${order.serviceImage || 'https://picsum.photos/200/200?random=1'}" alt="服务图片" class="order-image">
+                            <div class="order-details">
+                                <div class="order-title">${order.serviceName}</div>
+                                <div class="order-date">服务日期：${order.serviceDate}</div>
+                                <div class="order-price">¥${order.amount}</div>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <button class="order-button secondary-button" onclick="contactService('${order.orderNumber}')">联系客服</button>
+                            <button class="order-button primary-button" onclick="viewOrderDetail('${order.orderNumber}')">查看详情</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                content.innerHTML = ordersHTML;
+            }
+
+            // 联系客服
+            function contactService(orderNumber) {
+                // 保存订单信息到localStorage
+                localStorage.setItem('selectedOrder', orderNumber);
+                window.location.href = 'customer-service.html';
+            }
+
+            // 查看订单详情
+            function viewOrderDetail(orderNumber) {
+                window.location.href = `order-detail.html?id=${orderNumber}`;
+            }
+
+            // 设置右滑返回功能
+            function setupSwipeBack() {
+                let touchStartX = 0;
+                let touchEndX = 0;
+                const minSwipeDistance = 100;
+                const maxVerticalOffset = 50;
+                let touchStartY = 0;
+                let touchEndY = 0;
+
+                document.addEventListener('touchstart', function(event) {
+                    touchStartX = event.touches[0].clientX;
+                    touchStartY = event.touches[0].clientY;
+                }, false);
+
+                document.addEventListener('touchend', function(event) {
+                    touchEndX = event.changedTouches[0].clientX;
+                    touchEndY = event.changedTouches[0].clientY;
+                    handleSwipe();
+                }, false);
+
+                function handleSwipe() {
+                    const swipeDistance = touchEndX - touchStartX;
+                    const verticalOffset = Math.abs(touchEndY - touchStartY);
+                    const startedFromEdge = touchStartX <= 30;
+                    
+                    if (startedFromEdge && 
+                        swipeDistance > minSwipeDistance && 
+                        verticalOffset < maxVerticalOffset) {
+                        window.history.back();
+                    }
+                }
+            }
+        </script>
+    </div>
+</body>
+</html> 

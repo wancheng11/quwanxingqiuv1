@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-button {
+            font-size: 18px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .tabs {
+            display: flex;
+            background: #fff;
+            padding: 10px 15px;
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 99;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: #2196F3;
+            border-radius: 1px;
+        }
+
+        .content {
+            margin-top: 110px;
+            padding-bottom: 60px;
+        }
+
+        .chat-list {
+            background: #fff;
+        }
+
+        .chat-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .chat-name {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .chat-message {
+            font-size: 13px;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-badge {
+            background: #E41D1D;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        /* 添加好友弹窗 */
+        .add-friend-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .modal-close {
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 5px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-box i {
+            color: #999;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        /* 创建群聊弹窗 */
+        .create-group-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .friend-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .friend-checkbox {
+            margin-right: 10px;
+        }
+
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .friend-name {
+            font-size: 14px;
+        }
+
+        .create-button {
+            width: 100%;
+            padding: 12px 0;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px 0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+            z-index: 1000;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #2196F3;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+
+        .nav-text {
+            display: block;
+        }
+
+        .more-options-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .more-options-content {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            width: 120px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 5px 0;
+        }
+
+        .option-item {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .option-item:active {
+            background: #f5f5f5;
+        }
+
+        .option-item i {
+            margin-right: 8px;
+            font-size: 16px;
+            color: #2196F3;
+        }
+
+        /* 添加��角 */
+        .more-options-content::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 15px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">聊天</div>
+        <div class="header-actions">
+            <div class="header-button" onclick="showMoreOptions()">
+                <i class="fas fa-plus"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(this, 'messages')">消息</div>
+        <div class="tab" onclick="switchTab(this, 'contacts')">联系人</div>
+    </div>
+
+    <div class="content">
+        <!-- 消息列表 -->
+        <div class="chat-list" id="messagesList">
+            <!-- 客服消息 -->
+            <div class="chat-item" onclick="goToCustomerService()">
+                <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="客服头像" class="chat-avatar">
+                <div class="chat-info">
+                    <div class="chat-header">
+                        <div class="chat-name">官方在线客服</div>
+                        <div class="chat-time">${new Date().toLocaleTimeString('zh-CN', { 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: false 
+                        })}</div>
+                    </div>
+                    <div class="chat-message">您好，请问有什么可以帮您？</div>
+                </div>
+            </div>
+
+            <!-- 好友消息 -->
+            <div class="chat-item" onclick="goToChat('user1')">
+                <img src="https://picsum.photos/100/100?random=1" alt="头像" class="chat-avatar">
+                <div class="chat-info">
+                    <div class="chat-header">
+                        <div class="chat-name">小甜甜<span class="chat-badge">2</span></div>
+                        <div class="chat-time">11:20</div>
+                    </div>
+                    <div class="chat-message">期待与您见面！</div>
+                </div>
+            </div>
+
+            <!-- 群聊消息 -->
+            <div class="chat-item" onclick="goToChat('group1')">
+                <img src="https://picsum.photos/100/100?random=2" alt="群头像" class="chat-avatar">
+                <div class="chat-info">
+                    <div class="chat-header">
+                        <div class="chat-name">城市玩伴群<span class="chat-badge">5</span></div>
+                        <div class="chat-time">10:15</div>
+                    </div>
+                    <div class="chat-message">[图片]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加好友弹窗 -->
+    <div class="add-friend-modal" id="addFriendModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">添加好友</div>
+                <div class="modal-close" onclick="closeAddFriend()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="输入ID/手机号搜索">
+            </div>
+            <div class="friend-list">
+                <!-- 搜索结果将在这里显示 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建群聊弹窗 -->
+    <div class="create-group-modal" id="createGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">创建群聊</div>
+                <div class="modal-close" onclick="closeCreateGroup()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="friend-list">
+                <div class="friend-item">
+                    <input type="checkbox" class="friend-checkbox">
+                    <img src="https://picsum.photos/100/100?random=3" alt="头像" class="friend-avatar">
+                    <div class="friend-name">小甜甜</div>
+                </div>
+                <div class="friend-item">
+                    <input type="checkbox" class="friend-checkbox">
+                    <img src="https://picsum.photos/100/100?random=4" alt="头像" class="friend-avatar">
+                    <div class="friend-name">阳光</div>
+                </div>
+                <div class="friend-item">
+                    <input type="checkbox" class="friend-checkbox">
+                    <img src="https://picsum.photos/100/100?random=5" alt="头像" class="friend-avatar">
+                    <div class="friend-name">暖暖</div>
+                </div>
+            </div>
+            <button class="create-button" onclick="createGroup()">创建群聊</button>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">首页</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-plane"></i>
+            <span class="nav-text">旅行</span>
+        </div>
+        <div class="nav-item active">
+            <i class="fas fa-comments"></i>
+            <span class="nav-text">聊天</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-star"></i>
+            <span class="nav-text">订单</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span class="nav-text">我的</span>
+        </div>
+    </div>
+
+    <!-- 添加更多选项弹窗 -->
+    <div class="more-options-modal" id="moreOptionsModal">
+        <div class="more-options-content">
+            <div class="option-item" onclick="showAddFriend()">
+                <i class="fas fa-user-plus"></i>
+                <span>添加好友</span>
+            </div>
+            <div class="option-item" onclick="showCreateGroup()">
+                <i class="fas fa-users"></i>
+                <span>创建群聊</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加获取用户信息的函数
+        function getUserInfo() {
+            const userInfoStr = localStorage.getItem('userInfo');
+            if (userInfoStr) {
+                return JSON.parse(userInfoStr);
+            }
+            return null;
+        }
+
+        // 修改页面加载时的初始化函数
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取用户信息
+            const userInfo = getUserInfo();
+            if (!userInfo) {
+                // 如果未登录，跳转到登录页
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 加载聊天列表
+            loadChatList();
+        });
+
+        // 修改加载聊天列表的函数
+        function loadChatList() {
+            const chatList = JSON.parse(localStorage.getItem('chatList') || '[]');
+            const messagesList = document.getElementById('messagesList');
+            messagesList.innerHTML = '';
+
+            // 添加客服消息
+            messagesList.innerHTML = `
+                <div class="chat-item" onclick="goToCustomerService()">
+                    <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="客服头像" class="chat-avatar">
+                    <div class="chat-info">
+                        <div class="chat-header">
+                            <div class="chat-name">官方在线客服</div>
+                            <div class="chat-time">${new Date().toLocaleTimeString('zh-CN', { 
+                                hour: '2-digit', 
+                                minute: '2-digit',
+                                hour12: false 
+                            })}</div>
+                        </div>
+                        <div class="chat-message">您好，请问有什么可以帮您？</div>
+                    </div>
+                </div>
+            `;
+
+            // 添加其他聊天记录
+            chatList.forEach(chat => {
+                if (chat.id !== 'customer-service') {
+                    messagesList.innerHTML += `
+                        <div class="chat-item" onclick="goToChat('${chat.id}')">
+                            <img src="${chat.avatar}" alt="头像" class="chat-avatar">
+                            <div class="chat-info">
+                                <div class="chat-header">
+                                    <div class="chat-name">${chat.name}${chat.unread ? `<span class="chat-badge">${chat.unread}</span>` : ''}</div>
+                                    <div class="chat-time">${chat.time}</div>
+                                </div>
+                                <div class="chat-message">${chat.lastMessage}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // 修改创建群聊函数
+        function createGroup() {
+            const selectedFriends = document.querySelectorAll('.friend-checkbox:checked');
+            if (selectedFriends.length < 2) {
+                alert('请至少选择2个好友');
+                return;
+            }
+
+            const userInfo = getUserInfo();
+            const groupInfo = {
+                id: Date.now().toString(),
+                type: 'group',
+                name: '新建群聊',
+                avatar: 'https://picsum.photos/100/100?random=group',
+                lastMessage: `${userInfo.username}创建了群聊`,
+                time: new Date().toLocaleTimeString('zh-CN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false
+                }),
+                members: [userInfo.userId, ...Array.from(selectedFriends).map(f => f.dataset.id)]
+            };
+
+            // 保存群聊信息
+            let chatList = JSON.parse(localStorage.getItem('chatList') || '[]');
+            chatList.unshift(groupInfo);
+            localStorage.setItem('chatList', JSON.stringify(chatList));
+
+            // 关闭弹窗并刷新列表
+            closeCreateGroup();
+            loadChatList();
+        }
+
+        // 修改跳转到聊天详情页的函数
+        function goToChat(chatId) {
+            const userInfo = getUserInfo();
+            // 将当前用户信息和聊天ID传递给聊天详情页
+            const params = new URLSearchParams({
+                chatId: chatId,
+                userId: userInfo.userId,
+                userName: userInfo.username,
+                userAvatar: userInfo.avatarUrl
+            });
+            window.location.href = `chat-detail.html?${params.toString()}`;
+        }
+
+        // 切换标签页
+        function switchTab(element, tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            // 这里可以添加切换内容的逻辑
+        }
+
+        // 显示添加好友弹窗
+        function showAddFriend() {
+            closeMoreOptions(); // 先关闭更多选项
+            document.getElementById('addFriendModal').style.display = 'block';
+        }
+
+        // 关闭添加好友弹窗
+        function closeAddFriend() {
+            document.getElementById('addFriendModal').style.display = 'none';
+        }
+
+        // 显示创建群聊弹窗
+        function showCreateGroup() {
+            closeMoreOptions(); // 先关闭更多选项
+            document.getElementById('createGroupModal').style.display = 'block';
+        }
+
+        // 关闭创建群聊弹窗
+        function closeCreateGroup() {
+            document.getElementById('createGroupModal').style.display = 'none';
+        }
+
+        // 底部导航栏点击事件
+        document.querySelectorAll('.nav-item').forEach((item, index) => {
+            item.addEventListener('click', function() {
+                const pages = ['main', 'travel', 'chat', 'orders', 'profile'];
+                window.location.href = `${pages[index]}.html`;
+            });
+        });
+
+        // 显示更多选项
+        function showMoreOptions() {
+            const modal = document.getElementById('moreOptionsModal');
+            modal.style.display = 'block';
+        }
+
+        // 关闭更多选项
+        function closeMoreOptions() {
+            const modal = document.getElementById('moreOptionsModal');
+            modal.style.display = 'none';
+        }
+
+        // 点击遮罩层关闭
+        document.getElementById('moreOptionsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMoreOptions();
+            }
+        });
+
+        // 修改跳转到客服页面的函数
+        function goToCustomerService() {
+            window.location.href = 'kefuzhongxin.html';
+        }
+    </script>
+</body>
+</html> 

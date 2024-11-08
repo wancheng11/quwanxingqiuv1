@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣玩星球</title>
+    <script>
+        // 检查用户是否登录
+        const userInfo = localStorage.getItem('userInfo');
+        if (!userInfo) {
+            // 如果未登录，重定向到登录页面
+            window.location.href = 'login.html';
+        } else {
+            // 如果已登录，重定向到主页
+            window.location.href = 'main.html';
+        }
+    </script>
+</head>
+<body>
+    <!-- 页面加载时会立即执行重定向，这里不需要内容 -->
+</body>
+</html> 

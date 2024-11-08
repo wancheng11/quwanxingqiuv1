@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>客服中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            background-color: #f5f5f5;
+            font-family: '微软雅黑', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .content-wrapper {
+            width: 100%;
+            height: auto;
+            min-height: 100vh;
+            position: relative;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .header {
+            position: relative;
+            width: 100%;
+            height: 134px;
+            background-image: url('https://s21.ax1x.com/2024/11/07/pAydMD0.png');
+            background-size: cover;
+            background-position: bottom;
+            opacity: 0.46;
+        }
+        .image-text {
+            position: relative;
+            margin-top: -134px;
+            padding: 40px 10px 0 10px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .image-text img {
+            width: 68px;
+            height: 48px;
+            margin-right: 10px;
+        }
+        .image-text span {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #000000;
+        }
+        .order-container, .feature-container {
+            width: 90%;
+            max-width: 358px;
+            margin: 20px auto;
+            height: auto;
+            min-height: 83px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .order-container {
+            position: relative;
+            width: 90%;
+            max-width: 358px;
+            height: auto;
+            min-height: 83px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            margin: -41px auto 20px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .feature-container {
+            position: relative;
+            width: 90%;
+            max-width: 358px;
+            height: auto;
+            min-height: 83px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .issues-container-wrapper {
+            position: relative;
+            width: 90%;
+            max-width: 340px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            padding: 8px;
+            margin: 15px auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .order-button {
+            position: absolute;
+            top: 14px;
+            left: 29px;
+            width: 45px;
+            height: 20px;
+            background-color: #ED0F38;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #FFFFFF;
+            font-size: 11px;
+            z-index: 2;
+        }
+        .order-text {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 11px;
+            color: #747171;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .order-text i {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+        .feature-item {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .feature-item i {
+            font-size: 24px;
+            display: block;
+            margin: 0 auto;
+            color: #4CAF50;
+        }
+        .feature-item:nth-child(2) i {
+            color: #2196F3;
+        }
+        .feature-item:nth-child(3) i {
+            color: #FF9800;
+        }
+        .feature-item:nth-child(4) i {
+            color: #F44336;
+        }
+        .feature-item span {
+            font-size: 11px;
+            color: #000000;
+            margin-top: 5px;
+        }
+        .issues-container {
+            display: flex;
+            overflow-x: auto;
+            border-bottom: 1px solid #eee;
+            padding: 5px 0;
+        }
+        .issue-item {
+            flex: 0 0 auto;
+            padding: 8px 15px;
+            font-size: 12px;
+            color: #333333;
+            cursor: pointer;
+            position: relative;
+        }
+        .issue-item:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        .issue-item.selected {
+            color: #E90A0A;
+        }
+        .issue-item.selected::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background-color: #E90A0A;
+        }
+        .questions {
+            display: none;
+            margin-top: 8px;
+            padding: 0 15px;
+        }
+        .questions.active {
+            display: block;
+        }
+        .questions li {
+            list-style: none;
+            margin-bottom: 8px;
+            font-size: 11px;
+            line-height: 1.3;
+            white-space: normal;
+            color: #333;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .questions li:last-child {
+            margin-bottom: 0;
+        }
+        .contact-button {
+            width: 355px;
+            height: 48px;
+            background-color: #E41D1D;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .contact-button i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        .footer {
+            position: relative;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: #888888;
+            font-family: '微软雅黑', sans-serif;
+            padding: 20px 0;
+            margin-top: 20px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 350px;
+            max-height: 80vh;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .modal-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .modal-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 15px;
+        }
+        .modal-content div {
+            text-align: center;
+            flex: 0 0 calc(50% - 20px);
+            margin: 0;
+        }
+        .modal-content i {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 500;
+        }
+        .popup-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 90%;
+            width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .popup-content {
+            margin-bottom: 15px;
+        }
+        .popup-button {
+            text-align: center;
+        }
+        .popup-button button {
+            padding: 8px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .orders-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 300px;
+            height: 380px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            flex-direction: column;
+        }
+        .orders-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .orders-modal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+            height: calc(100% - 60px);
+            scroll-behavior: smooth;
+        }
+        .order-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            position: relative;
+        }
+        .order-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            height: auto;
+            min-height: 100px;
+            overflow: hidden;
+        }
+        .order-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .order-number {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .order-number span {
+            font-weight: bold;
+        }
+        .order-date {
+            color: #666;
+            font-size: 12px;
+            margin: 3px 0;
+        }
+        .order-date::before {
+            content: '出行日期：';
+            font-size: 12px;
+        }
+        .order-booker {
+            font-size: 12px;
+            color: #666;
+            margin: 3px 0;
+        }
+        .order-status {
+            padding: 2px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .status-pending {
+            background-color: #FFF3E0;
+            color: #FF9800;
+        }
+        .status-completed {
+            background-color: #E8F5E9;
+            color: #4CAF50;
+        }
+        .status-refunded {
+            background-color: #EFEBE9;
+            color: #795548;
+        }
+        .status-ongoing {
+            background-color: #E3F2FD;
+            color: #2196F3;
+        }
+        .order-info {
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* 为不同类型项目添加颜色 */
+        .project-city-companion {
+            color: #2196F3; /* 城市玩伴使用蓝色 */
+        }
+
+        .project-ticket {
+            color: #FF9800; /* 景点门票使用橙色 */
+        }
+
+        .project-game {
+            color: #F44336; /* 游戏陪玩使用红色 */
+        }
+
+        .project-city-partner {
+            color: #4CAF50; /* 城市搭子使用色 */
+        }
+
+        .order-price {
+            color: #E41D1D;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 3px;
+        }
+        .order-price::before {
+            content: '价格';
+            color: #666;
+            font-weight: normal;
+        }
+        .orders-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #666;
+        }
+        .orders-modal-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .orders-modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+        }
+        .orders-modal-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 2px;
+        }
+        .orders-modal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .order-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3px;
+        }
+        .order-price {
+            color: #E41D1D;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 0;
+        }
+        .order-price::before {
+            content: '价格：';
+            color: #666;
+            font-weight: normal;
+        }
+        .select-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+        /* 添加最近订单的样式 */
+        .recent-orders {
+            margin-top: 39px;
+            margin-left: 29px;
+            padding: 0;
+            width: calc(100% - 40px);
+            height: 45px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .recent-orders::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 修改订单项样式 */
+        .recent-order-item {
+            display: inline-flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            height: 45px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+            animation: scrollLeftRight 15s linear infinite;
+            cursor: pointer;
+        }
+
+        .recent-order-info {
+            flex: 1;
+            min-width: 0;
+            padding-right: 10px;
+        }
+
+        .recent-order-title {
+            font-size: 12px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .recent-order-date {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .recent-order-price {
+            font-size: 12px;
+            color: #E41D1D;
+            font-weight: bold;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        /* 修改滚动动画 */
+        @keyframes scrollLeftRight {
+            0% {
+                transform: translateX(0);
+            }
+            45% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(-100%);
+            }
+            95% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        /* 修改服务进度容器的样式 */
+        .service-progress {
+            position: relative;
+            width: 330px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            z-index: 1;
+        }
+
+        .progress-title {
+            font-size: 13px;
+            color: #333333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 8px 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .progress-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-type {
+            font-size: 12px;
+            color: #333;
+        }
+
+        .progress-status {
+            font-size: 12px;
+            color: #E41D1D;
+            padding: 2px 8px;
+            background-color: #FFF0F0;
+            border-radius: 10px;
+        }
+
+        .progress-status.completed {
+            color: #52C41A;
+            background-color: #F6FFED;
+        }
+
+        .progress-time {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* 添加悬停效果 */
+        .progress-item:hover {
+            border-color: #ddd;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        /* 调整在线客服按钮的位置 */
+        .contact-button {
+            width: 355px;
+            height: 48px;
+            background-color: #E41D1D;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        /* 修改服务进度容器 */
+        .service-progress {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 330px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-title {
+            font-size: 13px;
+            color: #333333;
+            font-weight: 500;
+        }
+
+        .progress-all {
+            font-size: 11px;
+            color: #747171;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-all i {
+            margin-left: 5px;
+            font-size: 11px;
+        }
+
+        /* 添加全部工单弹窗 */
+        .progress-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 330px;
+            max-height: 70vh;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1002;
+            overflow: hidden;
+        }
+
+        .progress-modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f8f8;
+        }
+
+        .progress-modal-header span {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .progress-modal-header i {
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .progress-modal-content {
+            max-height: calc(70vh - 50px);
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .progress-modal-item {
+            padding: 15px;
+            border-bottom: 1px solid #f5f5f5;
+            margin-bottom: 10px;
+        }
+
+        .progress-modal-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .progress-detail {
+            font-size: 11px;
+            color: #2196F3;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        /* 添加遮罩层样式 */
+        .progress-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        /* 修改工单处理结果的样式 */
+        .progress-detail {
+            font-size: 11px;
+            color: #2196F3;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        /* 修改弹窗中工单处理样式 */
+        .progress-modal-item .progress-detail {
+            font-size: 11px;
+            color: #2196F3;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        /* 添加催促按钮样式 */
+        .progress-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .urge-button {
+            background: #fff;
+            color: #E41D1D;
+            border: 1px solid #E41D1D;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .urge-button:hover {
+            background: #fff0f0;
+        }
+
+        .urge-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 调整单项内容的间距 */
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 8px 10px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-bottom: 6px;
+        }
+
+
+        /* 添加提示消息的样式 */
+        .toast-message {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        /* 添评价按钮样式 */
+        .rate-button {
+            background: #fff;
+            color: #2196F3;
+            border: 1px solid #2196F3;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rate-button:hover {
+            background: #E3F2FD;
+        }
+
+        .rate-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 添加评价弹窗样式 */
+        .rating-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1002;
+        }
+
+        .rating-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 320px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .rating-header {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .rating-star {
+            font-size: 24px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .rating-star.active {
+            color: #FFD700;
+        }
+
+        .rating-textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        .rating-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .rating-submit,
+        .rating-cancel {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .rating-submit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .rating-cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        /* 添加已评价按钮样式 */
+        .rate-button.rated {
+            background: #f5f5f5;
+            color: #999;
+            border: 1px solid #ddd;
+            cursor: not-allowed;
+        }
+
+        .rate-button.rated:hover {
+            background: #f5f5f5;
+            transform: none;
+        }
+
+        /* 添加响应式样式 */
+        @media screen and (max-width: 375px) {
+            /* 修改订单容器样式 */
+            .order-container, 
+            .feature-container {
+                width: 95%; /* 更小���幕使用更大的宽度比例 */
+                padding: 8px;
+            }
+
+            /* 修问题容器样式 */
+            .issues-container-wrapper {
+                width: 98%; /* 最小屏幕使用最大宽度比例 */
+                padding: 6px;
+            }
+
+            /* 修改在线客服按钮样式 */
+            .contact-button {
+                width: 90%;
+                height: 44px;
+                font-size: 15px;
+            }
+
+            /* 调整图标大小 */
+            .feature-item i {
+                font-size: 20px;
+            }
+
+            /* 调整文字大小 */
+            .feature-item span {
+                font-size: 11px;
+            }
+
+            /* 调整问题列表样式 */
+            .issue-item {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+
+            /* 调整问题选项样式 */
+            .questions li {
+                font-size: 11px;
+                margin-bottom: 8px;
+            }
+
+            /* 调整订单列表样式 */
+            .recent-order-item {
+                padding: 3px 0;
+            }
+
+            .recent-order-title {
+                font-size: 11px;
+            }
+
+            .recent-order-date,
+            .recent-order-price {
+                font-size: 10px;
+            }
+        }
+
+        @media screen and (max-width: 320px) {
+            /* 进一步缩小容器尺寸 */
+            .order-container, 
+            .feature-container,
+            .issues-container-wrapper {
+                width: 98%; /* 最小屏幕使用最大宽度比例 */
+                padding: 6px;
+            }
+
+            .feature-item i {
+                font-size: 18px;
+            }
+
+            .feature-item span {
+                font-size: 10px;
+            }
+
+            /* 调整问题列表样式 */
+            .issue-item {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+
+            /* 调整在线客服按钮 */
+            .contact-button {
+                width: 95%;
+                height: 40px;
+                font-size: 14px;
+            }
+
+            /* 调整页面边距 */
+            .questions {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        }
+
+        /* 添加更大屏幕的适配 */
+        @media screen and (min-width: 376px) {
+            .order-container, 
+            .feature-container,
+            .issues-container-wrapper {
+                width: 85%; /* 大屏幕使用较小的宽度比例 */
+            }
+        }
+
+        /* 确保内容可动 */
+        body {
+            min-height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 优化点击区域 */
+        .feature-item,
+        .issue-item,
+        .questions li {
+            padding: 10px;
+            touch-action: manipulation; /* 优化触摸操作 */
+        }
+
+        /* 优化文字显示 */
+        .recent-order-title,
+        .recent-order-date,
+        .recent-order-price {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 小屏幕适配 */
+        @media screen and (max-width: 320px) {
+            .issues-container-wrapper {
+                padding: 6px;
+                margin: 10px auto;
+            }
+
+            .issue-item {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .questions {
+                padding: 0 12px;
+            }
+
+            .questions li {
+                margin-bottom: 6px;
+                font-size: 10px;
+                padding: 3px 0;
+            }
+        }
+
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .back-button:active {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+        }
+
+        .header {
+            position: relative;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <h1 class="header-title">客服中心</h1>
+    </div>
+    <div class="image-text">
+        <img src="https://s21.ax1x.com/2024/11/07/pAyd7GQ.png" alt="客服图标">
+        <span>Hi~很高兴为您服务</span>
+    </div>
+    <div class="order-container">
+        <div class="order-button">订单</div>
+        <div class="order-text" onclick="viewAllOrders()">
+            全部
+            <i class="fas fa-angle-right"></i>
+        </div>
+        <div class="recent-orders">
+            <div class="recent-order-item" onclick="selectOrder('XK2847591', '城市玩伴 - 上海一日游', '张先生', '2024-03-20', '299')">
+                <div class="recent-order-info">
+                    <div class="recent-order-title project-city-companion">城市玩伴 - 上海一日游</div>
+                    <div class="recent-order-date">2024-03-20</div>
+                </div>
+                <div class="recent-order-price">¥299</div>
+            </div>
+            <div class="recent-order-item" onclick="selectOrder('PQ7391845', '景点门票 - 东方明珠', '李女士', '2024-03-19', '168')">
+                <div class="recent-order-info">
+                    <div class="recent-order-title project-ticket">景点门票 - 东方明珠</div>
+                    <div class="recent-order-date">2024-03-19</div>
+                </div>
+                <div class="recent-order-price">¥168</div>
+            </div>
+            <div class="recent-order-item" onclick="selectOrder('BN4628591', '游戏陪玩 - 王者荣耀', '王先生', '2024-03-18', '88')">
+                <div class="recent-order-info">
+                    <div class="recent-order-title project-game">游戏陪玩 - 王者荣耀</div>
+                    <div class="recent-order-date">2024-03-18</div>
+                </div>
+                <div class="recent-order-price">¥88</div>
+            </div>
+        </div>
+    </div>
+    <div class="feature-container">
+        <div class="feature-item">
+            <i class="fas fa-user"></i>
+            <span>找回账号</span>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-file-alt"></i>
+            <span>服务声明</span>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-comment-dots"></i>
+            <span>问题反馈</span>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-bullhorn"></i>
+            <span>平台公告</span>
+        </div>
+    </div>
+    <div class="issues-container-wrapper">
+        <div class="issues-container">
+            <div class="issue-item selected" onclick="selectIssue(this, 'questions1')">充值退款</div>
+            <div class="issue-item" onclick="selectIssue(this, 'questions2')">城市玩伴</div>
+            <div class="issue-item" onclick="selectIssue(this, 'questions3')">景点门票</div>
+            <div class="issue-item" onclick="selectIssue(this, 'questions4')">游戏陪玩</div>
+            <div class="issue-item" onclick="selectIssue(this, 'questions5')">城市搭子</div>
+        </div>
+        <ul id="questions1" class="questions active">
+            <li onclick="handleQuestionClick('充值退款', '1')">1. 如何��行充值？</li>
+            <li onclick="handleQuestionClick('充值退款', '2')">2. 充值未到账怎么办？</li>
+            <li onclick="handleQuestionClick('充值退款', '3')">3. 退款流程是怎样的？</li>
+            <li onclick="handleQuestionClick('充值退款', '4')">4. 退款多久能到账？</li>
+            <li onclick="handleQuestionClick('充值退款', '5')">5. 支持哪些付方式？</li>
+        </ul>
+        <ul id="questions2" class="questions">
+            <li onclick="handleQuestionClick('城市玩伴', '1')">1. 如何预约城市玩伴？</li>
+            <li onclick="handleQuestionClick('城市玩伴', '2')">2. 玩伴服务范围有哪些</li>
+            <li onclick="handleQuestionClick('城市玩伴', '3')">3. 伴收费标准是多少</li>
+            <li onclick="handleQuestionClick('城市玩伴', '4')">4. 如何成为城市玩伴？</li>
+            <li onclick="handleQuestionClick('城市玩伴', '5')">5. 玩伴服务间怎么算？</li>
+        </ul>
+        <ul id="questions3" class="questions">
+            <li onclick="handleQuestionClick('景点门票', '1')">1. 门票如何预订？</li>
+            <li onclick="handleQuestionClick('景点门票', '2')">2. 门票可以退改吗？</li>
+            <li onclick="handleQuestionClick('景点门票', '3')">3. 电子票使用说明</li>
+            <li onclick="handleQuestionClick('景点门票', '4')">4. 景点开放时间查询</li>
+            <li onclick="handleQuestionClick('景点门票', '5')">5. 票优惠政策</li>
+        </ul>
+        <ul id="questions4" class="questions">
+            <li onclick="handleQuestionClick('游戏陪玩', '1')">1. 如何找到陪玩？</li>
+            <li onclick="handleQuestionClick('游戏陪玩', '2')">2. 陪玩收费标准</li>
+            <li onclick="handleQuestionClick('游戏陪玩', '3')">3. 支持哪些游戏？</li>
+            <li onclick="handleQuestionClick('游戏陪玩', '4')">4. 如何成为陪玩？</li>
+            <li onclick="handleQuestionClick('游戏陪玩', '5')">5. 陪玩服务规则</li>
+        </ul>
+        <ul id="questions5" class="questions">
+            <li onclick="handleQuestionClick('城市搭子', '1')">1. 城市搭子是什？</li>
+            <li onclick="handleQuestionClick('城市搭子', '2')">2. 如何匹搭子？</li>
+            <li onclick="handleQuestionClick('城市搭子', '3')">3. 搭子服务范围</li>
+            <li onclick="handleQuestionClick('城市搭子', '4')">4. 安全保障措施</li>
+            <li onclick="handleQuestionClick('城市搭子', '5')">5. 搭子收费说明</li>
+        </ul>
+    </div>
+    
+        </div>
+    </div>
+    <div class="contact-button" onclick="contactService()">
+        <i class="fas fa-headset"></i>
+        <span>在线客服</span>
+    </div>
+
+    <div class="footer">
+        @2022-2025 万程乐娱版权所有
+    </div>
+
+    <script>
+        function contactService() {
+            // 直接跳转到客服页面，不带任何订单信息
+            window.location.href = 'customer-service.html';
+        }
+
+        function selectOrder(orderNumber, service, username, date, amount) {
+            // 保存选中的订单信息
+            const orderData = {
+                orderNumber: orderNumber,
+                service: service,
+                username: username,
+                date: date,
+                amount: amount,
+                status: '待使用'  // 添加订单状态
+            };
+            
+            // 保存订单信息到localStorage
+            localStorage.setItem('selectedOrder', JSON.stringify(orderData));
+            
+            // 跳转到客服页面
+            window.location.href = 'customer-service.html';
+        }
+
+        function openModal() {
+            // 直接跳转到客服页面
+            window.location.href = 'customer-service.html';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function selectIssue(element, questionsId) {
+            // 移除所有问题项的选中状态
+            const items = document.querySelectorAll('.issue-item');
+            items.forEach(item => item.classList.remove('selected'));
+            
+            // 添加当前项的选中状态
+            element.classList.add('selected');
+            
+            // 隐藏所有问题列表
+            const questions = document.querySelectorAll('.questions');
+            questions.forEach(q => q.classList.remove('active'));
+            
+            // 显示选中的问题列表
+            document.getElementById(questionsId).classList.add('active');
+        }
+
+        function viewAllOrders() {
+            const ordersModal = document.getElementById('ordersModal');
+            ordersModal.style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
+            
+            // 启动自动滚动
+            setTimeout(startAutoScroll, 1000); // 等1秒后开始滚动，确保态框已完全显示
+        }
+
+        function closeOrdersModal() {
+            const container = document.querySelector('.orders-modal-content');
+            const scrollInterval = container.getAttribute('data-scroll-interval');
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+            }
+            
+            document.getElementById('ordersModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function handleQuestionClick(category, questionNumber) {
+    if (category === '充值退款') {
+        switch(questionNumber) {
+            case '1': 
+                window.location.href = 'recharge.html'; 
+                break;
+            case '2': 
+                window.location.href = 'recharge-not-received.html'; 
+                break;
+            case '3': 
+                window.location.href = 'refund-process.html'; 
+                break;
+            case '4': 
+                window.location.href = 'refund-time.html'; 
+                break;
+            case '5': 
+                window.location.href = 'payment-methods.html'; 
+                break;
+        }
+    } else if (category === '城市玩伴') {
+        switch(questionNumber) {
+            case '1': 
+                window.location.href = 'city-companion-book.html'; 
+                break;
+            case '2': 
+                window.location.href = 'city-companion-service.html'; 
+                break;
+            case '3': 
+                window.location.href = 'city-companion-price.html'; 
+                break;
+            case '4': 
+                window.location.href = 'city-companion-join.html'; 
+                break;
+            case '5': 
+                window.location.href = 'city-companion-time.html'; 
+                break;
+        }
+    } else if (category === '景点门票') {
+        switch(questionNumber) {
+            case '1': 
+                window.location.href = 'ticket-booking.html'; 
+                break;
+            case '2': 
+                window.location.href = 'ticket-refund.html'; 
+                break;
+            case '3': 
+                window.location.href = 'ticket-guide.html'; 
+                break;
+            case '4': 
+                window.location.href = 'ticket-time.html'; 
+                break;
+            case '5': 
+                window.location.href = 'ticket-discount.html'; 
+                break;
+        }
+    } else if (category === '游戏陪玩') {
+        switch(questionNumber) {
+            case '1': 
+                window.location.href = 'game-companion-find.html'; 
+                break;
+            case '2': 
+                window.location.href = 'game-companion-price.html'; 
+                break;
+            case '3': 
+                window.location.href = 'game-list.html'; 
+                break;
+            case '4': 
+                window.location.href = 'game-companion-join.html'; 
+                break;
+            case '5': 
+                window.location.href = 'game-companion-rules.html'; 
+                break;
+        }
+    } else if (category === '城市搭子') {
+        switch(questionNumber) {
+            case '1': 
+                window.location.href = 'city-partner-intro.html'; 
+                break;
+            case '2': 
+                window.location.href = 'city-partner-match.html'; 
+                break;
+            case '3': 
+                window.location.href = 'city-partner-service.html'; 
+                break;
+            case '4': 
+                window.location.href = 'city-partner-safety.html'; 
+                break;
+            case '5': 
+                window.location.href = 'city-partner-price.html'; 
+                break;
+        }
+    }
+}
+
+// 添加自动滚动功能的 JavaScript 代码
+function startAutoScroll() {
+    const container = document.querySelector('.orders-modal-content');
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    let scrollTop = 0;
+    
+    // 自动滚动函数
+    function autoScroll() {
+        scrollTop += 1; // 每滚动1像素
+        container.scrollTop = scrollTop;
+        
+        // 当滚动到底部时重置到顶部
+        if (scrollTop >= scrollHeight - clientHeight) {
+            scrollTop = 0;
+            container.scrollTop = 0;
+        }
+    }
+
+    // 创建滚动定时器
+    const scrollInterval = setInterval(autoScroll, 50); // 每50毫秒滚动一次
+
+    // 鼠标悬停时暂停滚动
+    container.addEventListener('mouseenter', () => {
+        clearInterval(scrollInterval);
+    });
+
+    // 鼠标离开时恢复滚动
+    container.addEventListener('mouseleave', () => {
+        startAutoScroll();
+    });
+
+    // 存储定器ID，以便在关闭模态框时除
+    container.setAttribute('data-scroll-interval', scrollInterval);
+}
+
+// 添加找账号的点击事件处理
+document.querySelector('.feature-item:first-child').addEventListener('click', function() {
+    window.location.href = 'find-account.html';
+});
+
+// 修改 select-button 的点击事件理
+function selectOrder(orderNumber, service, username, date, amount) {
+    // 保存选中的订单信息
+    const orderData = {
+        orderNumber: orderNumber,
+        service: service,
+        username: username,
+        date: date,
+        amount: amount,
+        status: '待使用'  // 添加订单状态
+    };
+    
+    // 保存订单信息到localStorage
+    localStorage.setItem('selectedOrder', JSON.stringify(orderData));
+    
+    // 跳转到客服页面
+    window.location.href = 'customer-service.html';
+}
+
+// 修改页面加载时的初始化函数
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取当前登录用户信息
+    const userInfo = getUserInfo();
+    if (!userInfo) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // 加载用户订单
+    loadUserOrders(userInfo.userId);
+});
+
+// 添加获取用户订单的函数
+function loadUserOrders(userId) {
+    // 从localStorage获取所有订单
+    const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    
+    // 过滤出当前用户的订单
+    const userOrders = allOrders.filter(order => order.userId === userId);
+    
+    // 按时间倒序排序
+    userOrders.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+    
+    // 显示最近的订单（滚动显示部分）
+    const recentOrdersContainer = document.querySelector('.recent-orders');
+    if (userOrders.length === 0) {
+        recentOrdersContainer.innerHTML = `
+            <div class="recent-order-item">
+                <div class="recent-order-info">
+                    <div class="recent-order-title">暂无订单</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // 显示最近的3个订单
+    recentOrdersContainer.innerHTML = userOrders.slice(0, 3).map(order => `
+        <div class="recent-order-item" onclick="selectOrder('${order.orderNumber}', '${order.service}', '${order.username}', '${order.date}', '${order.amount}')">
+            <div class="recent-order-info">
+                <div class="recent-order-title ${getProjectClass(order.service)}">${order.service}</div>
+                <div class="recent-order-date">${order.date}</div>
+            </div>
+            <div class="recent-order-price">¥${order.amount}</div>
+        </div>
+    `).join('');
+}
+
+// 添加获取项目类名的函数
+function getProjectClass(serviceName) {
+    if (serviceName.includes('城市')) return 'project-city-companion';
+    if (serviceName.includes('门票')) return 'project-ticket';
+    if (serviceName.includes('游戏')) return 'project-game';
+    return '';
+}
+
+// 修改选择订单的函数
+function selectOrder(orderNumber, service, username, date, amount) {
+    // 保存选中的订单信息
+    const orderData = {
+        orderNumber: orderNumber,
+        service: service,
+        username: username,
+        date: date,
+        amount: amount,
+        status: '待使用'  // 添加订单状态
+    };
+    
+    // 保存订单信息到localStorage
+    localStorage.setItem('selectedOrder', JSON.stringify(orderData));
+    
+    // 跳转到客服页面
+    window.location.href = 'customer-service.html';
+}
+
+// 添加获取用户信息的函数
+function getUserInfo() {
+    try {
+        const userInfoStr = localStorage.getItem('currentUser');
+        if (userInfoStr) {
+            return JSON.parse(userInfoStr);
+        }
+    } catch (e) {
+        console.error('获取用户信息失败:', e);
+    }
+    return null;
+}
+
+    </script>
+</body>
+</html> 

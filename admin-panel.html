@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服管理后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: '微软雅黑', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: #fff;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .service-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .service-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .service-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .service-status {
+            font-size: 12px;
+            color: #2ecc71;
+        }
+
+        .service-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        /* 会话列表样式 */
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #34495e;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .conversation-item:hover {
+            background: #34495e;
+        }
+
+        .conversation-item.active {
+            background: #34495e;
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .customer-name {
+            font-weight: bold;
+        }
+
+        .conversation-time {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .conversation-preview {
+            font-size: 12px;
+            color: #bdc3c7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: #e74c3c;
+            color: #fff;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+
+        /* 主内容区域样式 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .customer-details {
+            line-height: 1.4;
+        }
+
+        .customer-id {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-button.end-chat {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .action-button.transfer {
+            background: #3498db;
+            color: #fff;
+        }
+
+        /* 聊天区域样式 */
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.customer {
+            flex-direction: row;
+        }
+
+        .message.service {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            position: relative;
+            margin: 0 10px;
+        }
+
+        .customer .message-content {
+            background: #e3f2fd;
+            color: #333;
+        }
+
+        .service .message-content {
+            background: #2196f3;
+            color: #fff;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* 输入区域样式 */
+        .input-container {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: #fff;
+        }
+
+        .input-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tool-button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #fff;
+        }
+
+        .tool-button:hover {
+            background: #f5f5f5;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        textarea {
+            flex: 1;
+            height: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .send-button {
+            padding: 10px 20px;
+            background: #2196f3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        /* 快捷回复面板样式 */
+        .quick-reply-panel {
+            position: absolute;
+            bottom: 180px;
+            right: 20px;
+            width: 300px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .quick-reply-header {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quick-reply-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .quick-reply-item {
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quick-reply-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* 工单信息面板样式 */
+        .ticket-panel {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            width: 300px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .ticket-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        .ticket-content {
+            padding: 15px;
+        }
+
+        .ticket-info {
+            margin-bottom: 15px;
+        }
+
+        .ticket-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .ticket-value {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* 转接面板样式 */
+        .transfer-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .transfer-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transfer-content {
+            padding: 15px;
+        }
+
+        .transfer-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .transfer-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transfer-item:last-child {
+            border-bottom: none;
+        }
+
+        .transfer-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transfer-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .transfer-button {
+            padding: 5px 10px;
+            background: #2196f3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* 遮罩层样式 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="service-info">
+                <img src="https://s1.imagehub.cc/images/2024/11/08/f7c6fc8af7721e2c26d015887b28532e.jpg" alt="客服头像" class="service-avatar">
+                <div>
+                    <div class="service-name">客服小美</div>
+                    <div class="service-status">在线</div>
+                </div>
+            </div>
+            <div class="service-stats">
+                <span>今日接待：15</span>
+                <span>在线时长：3h 45m</span>
+            </div>
+        </div>
+        <div class="conversation-list">
+            <div class="conversation-item active">
+                <div class="conversation-header">
+                    <span class="customer-name">张先生 <span class="unread-badge">2</span></span>
+                    <span class="conversation-time">14:30</span>
+                </div>
+                <div class="conversation-preview">请问这个订单什么时候能退款？</div>
+            </div>
+            <div class="conversation-item">
+                <div class="conversation-header">
+                    <span class="customer-name">李女士</span>
+                    <span class="conversation-time">14:25</span>
+                </div>
+                <div class="conversation-preview">好的，谢谢您的帮助</div>
+            </div>
+            <!-- 更多会话项... -->
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <div class="chat-header">
+            <div class="customer-info">
+                <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="客户头像" class="customer-avatar">
+                <div class="customer-details">
+                    <div class="customer-name">张先生</div>
+                    <div class="customer-id">ID: 12345678</div>
+                </div>
+            </div>
+            <div class="chat-actions">
+                <button class="action-button transfer" onclick="showTransferPanel()">
+                    <i class="fas fa-random"></i>
+                    转接
+                </button>
+                <button class="action-button end-chat" onclick="endChat()">
+                    <i class="fas fa-times"></i>
+                    结束会话
+                </button>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <!-- 消息内容 -->
+            <div class="message customer">
+                <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="客户头像" class="customer-avatar">
+                <div>
+                    <div class="message-content">
+                        您好，我想问一下订单退款的问题
+                    </div>
+                    <div class="message-time">14:30</div>
+                </div>
+            </div>
+            <div class="message service">
+                <img src="https://s1.imagehub.cc/images/2024/11/08/f7c6fc8af7721e2c26d015887b28532e.jpg" alt="客服头像" class="service-avatar">
+                <div>
+                    <div class="message-content">
+                        您好，请提供一下订单号，我帮您查询
+                    </div>
+                    <div class="message-time">14:31</div>
+                </div>
+            </div>
+            <!-- 更多消息... -->
+        </div>
+
+        <div class="input-container">
+            <div class="input-toolbar">
+                <button class="tool-button" onclick="showQuickReply()">
+                    <i class="fas fa-comment-dots"></i>
+                    快捷回复
+                </button>
+                <button class="tool-button">
+                    <i class="fas fa-image"></i>
+                    图片
+                </button>
+                <button class="tool-button">
+                    <i class="fas fa-file"></i>
+                    文件
+                </button>
+                <button class="tool-button" onclick="showTicketInfo()">
+                    <i class="fas fa-ticket-alt"></i>
+                    工单信息
+                </button>
+            </div>
+            <div class="input-box">
+                <textarea placeholder="请输入消息..."></textarea>
+                <button class="send-button" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷回复面板 -->
+    <div class="quick-reply-panel">
+        <div class="quick-reply-header">
+            <span>快捷回复</span>
+            <i class="fas fa-times" onclick="hideQuickReply()"></i>
+        </div>
+        <div class="quick-reply-list">
+            <div class="quick-reply-item" onclick="insertQuickReply(this)">您好，请问有什么可以帮您？</div>
+            <div class="quick-reply-item" onclick="insertQuickReply(this)">好的，请稍等，我帮您查询</div>
+            <div class="quick-reply-item" onclick="insertQuickReply(this)">请提供一下订单号，方便我查询</div>
+            <div class="quick-reply-item" onclick="insertQuickReply(this)">还有其他问题需要帮助吗？</div>
+            <!-- 更多快捷回复... -->
+        </div>
+    </div>
+
+    <!-- 工单信息面板 -->
+    <div class="ticket-panel">
+        <div class="ticket-header">
+            工单信息
+            <i class="fas fa-times" onclick="hideTicketInfo()"></i>
+        </div>
+        <div class="ticket-content">
+            <div class="ticket-info">
+                <div class="ticket-label">工单编号</div>
+                <div class="ticket-value">TK20240321001</div>
+            </div>
+            <div class="ticket-info">
+                <div class="ticket-label">问题类型</div>
+                <div class="ticket-value">退款问题</div>
+            </div>
+            <div class="ticket-info">
+                <div class="ticket-label">创建时间</div>
+                <div class="ticket-value">2024-03-21 14:30</div>
+            </div>
+            <div class="ticket-info">
+                <div class="ticket-label">状态</div>
+                <div class="ticket-value">处理中</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 转接面板 -->
+    <div class="transfer-panel">
+        <div class="transfer-header">
+            转接客服
+            <i class="fas fa-times" onclick="hideTransferPanel()"></i>
+        </div>
+        <div class="transfer-content">
+            <div class="transfer-list">
+                <div class="transfer-item">
+                    <div class="transfer-name">
+                        <img src="path_to_avatar" alt="客服头像" class="transfer-avatar">
+                        <span>客服小王</span>
+                    </div>
+                    <button class="transfer-button" onclick="transferTo('小王')">转接</button>
+                </div>
+                <div class="transfer-item">
+                    <div class="transfer-name">
+                        <img src="path_to_avatar" alt="客服头像" class="transfer-avatar">
+                        <span>客服小李</span>
+                    </div>
+                    <button class="transfer-button" onclick="transferTo('小李')">转接</button>
+                </div>
+                <!-- 更多客服... -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay"></div>
+
+    <script>
+        // 添加 WebSocket 连接相关代码
+        const ws = new WebSocket('ws://your-websocket-server.com'); // 替换为你的WebSocket服务器地址
+
+        // WebSocket 连接建立时的处理
+        ws.onopen = function() {
+            console.log('WebSocket连接已建立');
+            // 发送客服登录信息
+            ws.send(JSON.stringify({
+                type: 'service_login',
+                serviceId: '12001',
+                serviceName: '客服小美'
+            }));
+        };
+
+        // 接收消息的处理
+        ws.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            
+            switch(message.type) {
+                case 'new_chat':
+                    // 处理新的会话请求
+                    addNewConversation(message.user);
+                    break;
+                    
+                case 'user_message':
+                    // 处理用户发送的消息
+                    handleUserMessage(message);
+                    break;
+                    
+                case 'transfer_request':
+                    // 处理转接请求
+                    handleTransferRequest(message);
+                    break;
+                    
+                case 'user_offline':
+                    // 处理用户离线
+                    handleUserOffline(message.userId);
+                    break;
+            }
+        };
+
+        // 发送消息的函数
+        function sendServiceMessage(userId, content) {
+            ws.send(JSON.stringify({
+                type: 'service_message',
+                to: userId,
+                content: content,
+                serviceId: '12001',
+                timestamp: new Date().getTime()
+            }));
+        }
+
+        // 处理用户消息的函数
+        function handleUserMessage(message) {
+            const { from, content, timestamp } = message;
+            
+            // 在对应的会话中显示消息
+            const chatContainer = document.querySelector(`#chat-${from}`);
+            if (chatContainer) {
+                const messageHTML = `
+                    <div class="message customer">
+                        <div class="message-content">
+                            ${content}
+                            <div class="time-stamp">${formatTime(timestamp)}</div>
+                        </div>
+                    </div>
+                `;
+                chatContainer.insertAdjacentHTML('beforeend', messageHTML);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // 更新会话列表中的最新消息预览
+                updateConversationPreview(from, content);
+            }
+        }
+
+        // 添加新会话的函数
+        function addNewConversation(user) {
+            const conversationHTML = `
+                <div class="conversation-item" data-user-id="${user.id}">
+                    <div class="conversation-header">
+                        <span class="customer-name">${user.name}</span>
+                        <span class="conversation-time">${formatTime(new Date())}</span>
+                    </div>
+                    <div class="conversation-preview">新会话请求</div>
+                </div>
+            `;
+            
+            document.querySelector('.conversation-list').insertAdjacentHTML('afterbegin', conversationHTML);
+        }
+
+        // 处理转接请求的函数
+        function handleTransferRequest(message) {
+            const { userId, reason } = message;
+            
+            // 显示转接请求通知
+            showTransferNotification(userId, reason);
+        }
+
+        // 处理用户离线的函数
+        function handleUserOffline(userId) {
+            // 更新会话状态
+            const conversation = document.querySelector(`[data-user-id="${userId}"]`);
+            if (conversation) {
+                conversation.classList.add('offline');
+                // 可以添加离线标记或其他视觉提示
+            }
+        }
+
+        // 更新会话预览的函数
+        function updateConversationPreview(userId, content) {
+            const conversation = document.querySelector(`[data-user-id="${userId}"]`);
+            if (conversation) {
+                const preview = conversation.querySelector('.conversation-preview');
+                preview.textContent = content;
+                
+                const time = conversation.querySelector('.conversation-time');
+                time.textContent = formatTime(new Date());
+            }
+        }
+
+        // 格式化时间的函数
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+        }
+
+        // WebSocket 错误处理
+        ws.onerror = function(error) {
+            console.error('WebSocket错误:', error);
+            showErrorMessage('连接发生错误，请刷新页面重试');
+        };
+
+        // WebSocket 连接关闭处理
+        ws.onclose = function() {
+            console.log('WebSocket连接已关闭');
+            showErrorMessage('连接已断开，正在尝试重新连接...');
+            // 可以添加重连逻辑
+            setTimeout(reconnectWebSocket, 5000);
+        };
+
+        // 重连函数
+        function reconnectWebSocket() {
+            if (ws.readyState === WebSocket.CLOSED) {
+                // 重新创建WebSocket连接
+                ws = new WebSocket('ws://your-websocket-server.com');
+                // 重新绑定事件处理函数
+                // ...
+            }
+        }
+
+        // 显示快捷回复面板
+        function showQuickReply() {
+            document.querySelector('.quick-reply-panel').style.display = 'block';
+        }
+
+        // 隐藏快捷回复面板
+        function hideQuickReply() {
+            document.querySelector('.quick-reply-panel').style.display = 'none';
+        }
+
+        // 插入快捷回复内容
+        function insertQuickReply(element) {
+            const content = element.textContent;
+            document.querySelector('textarea').value = content;
+            hideQuickReply();
+        }
+
+        // 显示工单信息
+        function showTicketInfo() {
+            document.querySelector('.ticket-panel').style.display = 'block';
+        }
+
+        // 隐藏工单信息
+        function hideTicketInfo() {
+            document.querySelector('.ticket-panel').style.display = 'none';
+        }
+
+        // 显示转接面板
+        function showTransferPanel() {
+            document.querySelector('.transfer-panel').style.display = 'block';
+            document.querySelector('.overlay').style.display = 'block';
+        }
+
+        // 隐藏转接面板
+        function hideTransferPanel() {
+            document.querySelector('.transfer-panel').style.display = 'none';
+            document.querySelector('.overlay').style.display = 'none';
+        }
+
+        // 转接到指定客服
+        function transferTo(name) {
+            alert(`正在将对话转接给客服${name}...`);
+            hideTransferPanel();
+        }
+
+        // 结束会话
+        function endChat() {
+            if (confirm('确定要结束当前会话吗？')) {
+                alert('会话已结束');
+            }
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const textarea = document.querySelector('textarea');
+            const message = textarea.value.trim();
+            
+            if (message) {
+                const currentTime = new Date().toLocaleTimeString('zh-CN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false
+                });
+
+                const messageHTML = `
+                    <div class="message service">
+                        <img src="https://s1.imagehub.cc/images/2024/11/08/f7c6fc8af7721e2c26d015887b28532e.jpg" alt="客服头像" class="service-avatar">
+                        <div>
+                            <div class="message-content">
+                                ${message}
+                            </div>
+                            <div class="message-time">${currentTime}</div>
+                        </div>
+                    </div>
+                `;
+
+                const chatContainer = document.querySelector('.chat-container');
+                chatContainer.insertAdjacentHTML('beforeend', messageHTML);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                textarea.value = '';
+            }
+        }
+
+        // 监听回车键发送消息
+        document.querySelector('textarea').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 

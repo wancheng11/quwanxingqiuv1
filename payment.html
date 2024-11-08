@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付订单</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .content {
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        .order-info {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .order-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .order-detail {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .order-amount {
+            font-size: 24px;
+            color: #E41D1D;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .payment-methods {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option.active {
+            border-color: #2196F3;
+            background: #E3F2FD;
+        }
+
+        .payment-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .payment-icon.wechat {
+            color: #07C160;
+        }
+
+        .payment-icon.alipay {
+            color: #1677FF;
+        }
+
+        .payment-name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .payment-radio {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin-left: auto;
+            position: relative;
+        }
+
+        .payment-option.active .payment-radio {
+            border-color: #2196F3;
+        }
+
+        .payment-option.active .payment-radio::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #2196F3;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .pay-button {
+            width: 100%;
+            padding: 15px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .pay-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #52c41a;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+        }
+
+        .success-icon i {
+            color: white;
+            font-size: 30px;
+        }
+
+        .success-message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .success-button {
+            background: #2196F3;
+            color: white;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <h1 class="header-title">订单支付</h1>
+    </div>
+
+    <div class="content">
+        <div class="order-info">
+            <div class="order-title">订单信息</div>
+            <div class="order-detail" id="orderNumber">订单号：--</div>
+            <div class="order-detail" id="orderService"></div>
+            <div class="order-detail" id="orderDate"></div>
+            <div class="order-amount" id="orderAmount"></div>
+        </div>
+
+        <div class="payment-methods">
+            <div class="payment-title">选择支付方式</div>
+            <div class="payment-option" onclick="selectPayment('wechat')">
+                <i class="fab fa-weixin payment-icon wechat"></i>
+                <span class="payment-name">微信支付</span>
+                <div class="payment-radio"></div>
+            </div>
+            <div class="payment-option" onclick="selectPayment('alipay')">
+                <i class="fab fa-alipay payment-icon alipay"></i>
+                <span class="payment-name">支付宝支付</span>
+                <div class="payment-radio"></div>
+            </div>
+        </div>
+
+        <button class="pay-button" onclick="confirmPayment()">
+            确认支付
+        </button>
+    </div>
+
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="success-message">支付成功！</div>
+            <button class="success-button" onclick="goToOrders()">查看订单</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPayment = null;
+
+        // 获取URL参数
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // 页面加载时初始化订单信息
+        document.addEventListener('DOMContentLoaded', function() {
+            const service = decodeURIComponent(getQueryParam('service') || '');
+            const date = getQueryParam('date');
+            const amount = getQueryParam('amount');
+            // 生成订单号：当前时间戳 + 4位随机数
+            const orderNumber = 'XK' + Date.now().toString().slice(-6) + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            
+            document.getElementById('orderNumber').textContent = `订单号：${orderNumber}`;
+            document.getElementById('orderService').textContent = `服务项目：${service}`;
+            document.getElementById('orderDate').textContent = `服务日期：${date}`;
+            document.getElementById('orderAmount').textContent = `￥${amount}`;
+
+            // 存储订单信息到本地存储
+            localStorage.setItem('lastOrder', JSON.stringify({
+                orderNumber: orderNumber,
+                service: service,
+                date: date,
+                amount: amount,
+                status: '待使用'
+            }));
+        });
+
+        // 选择支付方式
+        function selectPayment(type) {
+            // 移除所有支付方式的选中状态
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // 为选中的支付方式添加选中状态
+            const selectedOption = document.querySelector(`.payment-option:has(.fa-${type})`);
+            if (selectedOption) {
+                selectedOption.classList.add('active');
+                selectedPayment = type;
+            }
+        }
+
+        // 确认支付
+        function confirmPayment() {
+            if (!selectedPayment) {
+                alert('请选择支付方式');
+                return;
+            }
+
+            // 模拟支付过程
+            const payButton = document.querySelector('.pay-button');
+            payButton.disabled = true;
+            payButton.textContent = '支付中...';
+
+            // 模拟支付延迟
+            setTimeout(() => {
+                payButton.disabled = false;
+                payButton.textContent = '确认支付';
+                showSuccessModal();
+            }, 1500);
+        }
+
+        // 显示支付成功弹窗
+        function showSuccessModal() {
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        // 跳转到订单页面
+        function goToOrders() {
+            window.location.href = 'orders.html';
+        }
+    </script>
+</body>
+</html> 

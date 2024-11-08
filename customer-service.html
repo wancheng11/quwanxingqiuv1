@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线客服</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background-color: #f5f5f5;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden; /* 禁止整个页面滚动 */
+            position: fixed; /* 固定整个页面 */
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .chat-container {
+            padding: 15px;
+            margin-bottom: 60px;
+            margin-top: 60px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            left: 0;
+            right: 0;
+            -webkit-overflow-scrolling: touch; /* 添加iOS滚动优化 */
+        }
+
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .message.system {
+            justify-content: center;
+        }
+
+        .message.service {
+            align-items: flex-start;  /* 客服消息左对齐 */
+        }
+
+        .message.customer {
+            justify-content: flex-end;
+        }
+
+        .avatar {
+            width: 35px;         /* 减小头像大小 */
+            height: 35px;        /* 减小头像大小 */
+            border-radius: 50%;
+            margin: 0 5px;       /* 减小像外边距 */
+        }
+
+        .message-content {
+            display: inline-block;
+            max-width: 70%;
+            min-width: auto;
+            padding: 8px 12px;
+            border-radius: 10px;
+            position: relative;
+            word-break: break-all;
+            white-space: pre-wrap;
+            box-sizing: border-box;
+            font-size: 14px;
+            text-indent: 0;        /* 移除首行缩进 */
+            height: auto;
+            line-height: 1.4;
+            overflow-wrap: break-word;
+        }
+
+        .service .message-content {
+            background: #E3F2FD;
+            color: #333;
+            text-align: left;
+            margin-right: auto;
+            margin-left: 5px;
+            padding-left: 20px;   /* 增加左侧内边距 */
+            padding-right: 20px;  /* 增加右侧内边距 */
+        }
+
+        .customer .message-content {
+            background: #95EC69;
+            color: #333;
+            text-align: left;
+            margin-left: auto;
+            margin-right: 5px;
+            float: right;         /* 使消息框靠右 */
+            padding-left: 12px;   /* 减小左侧内边距 */
+            padding-right: 12px;  /* 减小右侧内边距 */
+        }
+
+        .system-message {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px 15px;
+            background: #fff;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-button,
+        .emoji-button,
+        .plus-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .voice-button i,
+        .emoji-button i,
+        .plus-button i {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .emoji-panel {
+            position: fixed;
+            bottom: 60px;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 999;
+            box-sizing: border-box;
+        }
+
+        .emoji-list {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 12px;
+            padding: 10px;
+        }
+
+        .emoji-list span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .emoji-list span:hover {
+            background-color: #f5f5f5;
+        }
+
+        .plus-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 20px 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 999;
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+
+        .plus-panel.show {
+            transform: translateY(0);
+        }
+
+        .plus-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .plus-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .plus-option i {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .plus-option span {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .time-stamp {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: #999;
+        }
+
+        .customer .time-stamp {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 添加表情样式 */
+        .message-content span {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        /* 客服消息的时间戳颜色 */
+        .service .time-stamp {
+            color: #999;
+        }
+
+        /* 添加新的样式 */
+        .service-intro {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: 0;
+        }
+
+        .avatar-large {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 0;
+        }
+
+        .service-welcome {
+            background: #E3F2FD;
+            color: #333;
+            padding: 12px 20px 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 0;
+            display: inline-block;
+            width: calc(100% - 40px);
+            box-sizing: border-box;
+        }
+
+        .message-content-connect {
+            max-width: 70%;
+            padding: 12px 15px 25px;
+            border-radius: 10px;
+            position: relative;
+            white-space: pre-line;
+            line-height: 1.5;
+            word-wrap: break-word; /* 确保长文本会换行 */
+            overflow-wrap: break-word; /* 确保长单词会换行 */
+        }
+
+        .avatar-connect {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .message-connect {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .message-connect.system {
+            justify-content: center;
+        }
+
+        .message-connect.service {
+            justify-content: flex-start;
+        }
+
+        .message-connect.customer {
+            justify-content: flex-end;
+        }
+
+        .message-connect .avatar-connect {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .message-connect .message-content-connect {
+            max-width: 70%;
+            padding: 12px 15px 25px;
+            border-radius: 10px;
+            position: relative;
+            white-space: pre-line;
+            line-height: 1.5;
+            word-wrap: break-word; /* 确保长文本会换行 */
+            overflow-wrap: break-word; /* 确保长单词会换行 */
+        }
+
+        .service-connect .message-content-connect {
+            background: #E3F2FD;
+            color: #333;
+            text-align: left;
+            margin-right: auto;
+        }
+
+        .customer-connect .message-content-connect {
+            background: #666666;
+            color: #ffffff;
+            text-align: left;
+            margin-left: auto;
+        }
+
+        .system-message-connect {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .time-stamp-connect {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: #999;
+        }
+
+        .customer-connect .time-stamp-connect {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 添加表情样式 */
+        .message-content-connect span {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        /* 客服消息的时戳颜色 */
+        .service-connect .time-stamp-connect {
+            color: #999;
+        }
+
+        /* 添加新的样式 */
+        .service-intro-connect {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: 0;
+        }
+
+        .avatar-large-connect {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 0;
+        }
+
+        .service-welcome-connect {
+            background: #E3F2FD;
+            color: #333;
+            padding: 12px 20px 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 0;
+            display: inline-block;
+            width: calc(100% - 40px);
+            box-sizing: border-box;
+        }
+
+        /* 修改人工客服接入时的特殊样式 */
+        .service-connect {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .avatar-connect {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+            margin-bottom: -25px;
+        }
+
+        .message-content-connect {
+            background: #f5f5f5;
+            color: #333;
+            padding: 35px 20px 25px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 200px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* 添加退出按钮样式 */
+        .exit-service {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            display: none; /* 默认隐藏 */
+        }
+
+        .exit-service:hover {
+            color: #E41D1D;
+        }
+
+        /* 添加语音录制提示样式 */
+        .voice-tip {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .voice-tip i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        /* 添加表情面 */
+        .emoji-panel {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            z-index: 1001;
+            animation: pulse 1.5s infinite;
+        }
+
+        .emoji-panel .emoji-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .emoji-panel .emoji-list span {
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        /* 添加加号面板 */
+        .plus-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 20px 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 999;
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+
+        .plus-panel.show {
+            transform: translateY(0);
+        }
+
+        .plus-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        .plus-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .plus-option i {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .plus-option span {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .input-box {
+            flex: 1;
+            height: 32px;
+            padding: 0 12px;
+            border: none;
+            border-radius: 16px;
+            font-size: 14px;
+            background-color: #f5f5f5;
+            color: #333;
+            text-align: left;
+        }
+
+        .input-box:focus {
+            outline: none;
+            background-color: #f5f5f5;
+        }
+
+        .input-box::placeholder {
+            color: #999;
+        }
+
+        /* 添加图片和文件消息的样式 */
+        .image-content {
+            padding: 5px !important;
+            background: transparent !important;
+        }
+
+        .sent-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .file-content {
+            background: #f5f5f5;
+            padding: 10px 15px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-info i {
+            font-size: 24px;
+            color: #666;
+        }
+
+        .file-name {
+            font-size: 14px;
+            color: #333;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 添加订单选择器样式 */
+        .order-selector {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .order-selector-content {
+            width: 90%;
+            max-width: 320px;
+            max-height: 80vh;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-selector-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f8f8;
+        }
+
+        .order-selector-header span {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .order-selector-header i {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .order-selector-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .selector-order-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+
+        .selector-order-number {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .selector-order-info {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .selector-order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .selector-order-price {
+            color: #E41D1D;
+            font-weight: bold;
+        }
+
+        .selector-order-button {
+            background: #2196F3;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* 修改时间戳样式 */
+        .time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+            text-align: right;
+        }
+
+        /* 为时间戳腾出空间 */
+        .message-content {
+            padding-bottom: 15px; /* 减小底部内边距 */
+        }
+
+        /* 调整用户消息框样式 */
+        .customer {
+            justify-content: flex-start;
+        }
+
+        .customer .message-content {
+            background: #95EC69;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        /* 调整客服消息框样式 */
+        .service {
+            justify-content: flex-end;
+        }
+
+        .service .message-content {
+            background: #E3F2FD;
+            color: #333;
+            margin-left: 5px;
+        }
+
+        /* 消息内容和头像的容器 */
+        .message-wrapper {
+            display: flex;
+            align-items: flex-start;
+            max-width: 100%;
+            gap: 5px;            /* 使用gap属性控制间距 */
+        }
+
+        /* 修改消息内容样式 */
+        .message-content {
+            display: inline-block;
+            max-width: 70%;
+            min-width: auto;
+            padding: 8px 12px;
+            border-radius: 10px;
+            position: relative;
+            word-break: break-all;
+            white-space: pre-wrap;
+            box-sizing: border-box;
+            font-size: 14px;
+            text-indent: 0;
+            height: auto;
+            line-height: 1.4;
+            overflow-wrap: break-word;
+        }
+
+        /* 修改消息容器样式 */
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 调整客服消息框样式（左侧） */
+        .service {
+            justify-content: flex-start;
+        }
+
+        .service .message-content {
+            background: #E3F2FD;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        /* 调整用户消息框样式（右侧） */
+        .customer {
+            justify-content: flex-end;
+        }
+
+        .customer .message-content {
+            background: #95EC69;
+            color: #333;
+            margin-left: 5px;
+        }
+
+        /* 修改时间戳样式 */
+        .time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 2px;
+            text-align: right;
+        }
+
+        /* 修改头像容器样式 */
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 5px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <h1 class="header-title">智能客服</h1>
+        <div class="exit-service" onclick="exitHumanService()" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <!-- 初始消息会由 JavaScript 动态添加 -->
+    </div>
+
+    <div class="input-container">
+        <div class="voice-button" onclick="startVoiceInput()">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <input type="text" class="input-box" id="messageInput" placeholder="请输入消息..." enterkeyhint="send">
+        <div class="emoji-button" onclick="toggleEmojiPanel()">
+            <i class="far fa-smile"></i>
+        </div>
+        <div class="plus-button" onclick="togglePlusPanel()">
+            <i class="fas fa-plus"></i>
+        </div>
+    </div>
+
+    <div class="emoji-panel" id="emojiPanel">
+        <div class="emoji-list">
+            <!-- 这里添加表情列表 -->
+            <span onclick="insertEmoji('😊')">😊</span>
+            <span onclick="insertEmoji('😂')">😂</span>
+            <span onclick="insertEmoji('🤣')">🤣</span>
+            <span onclick="insertEmoji('😍')">😍</span>
+            <span onclick="insertEmoji('🥰')">🥰</span>
+            <span onclick="insertEmoji('😘')">😘</span>
+            <span onclick="insertEmoji('😎')">😎</span>
+            <span onclick="insertEmoji('🤔')">🤔</span>
+            <span onclick="insertEmoji('😅')">😅</span>
+            <span onclick="insertEmoji('😉')">😉</span>
+            <span onclick="insertEmoji('🌹')">🌹</span>
+            <span onclick="insertEmoji('👍')">👍</span>
+            <span onclick="insertEmoji('❤️')">❤️</span>
+            <span onclick="insertEmoji('💕')"></span>
+            <span onclick="insertEmoji('💪')">💪</span>
+        </div>
+    </div>
+
+    <div class="plus-panel" id="plusPanel">
+        <div class="plus-options">
+            <div class="plus-option" onclick="handleFileSelect('image')">
+                <i class="fas fa-image"></i>
+                <span>图片</span>
+            </div>
+            <div class="plus-option" onclick="handleFileSelect('camera')">
+                <i class="fas fa-camera"></i>
+                <span>拍照</span>
+            </div>
+            <div class="plus-option" onclick="handleFileSelect('file')">
+                <i class="fas fa-file"></i>
+                <span>文件</span>
+            </div>
+            <div class="plus-option" onclick="showOrderSelector()">
+                <i class="fas fa-list-alt"></i>
+                <span>选择订单</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-selector" id="orderSelector">
+        <div class="order-selector-content">
+            <div class="order-selector-header">
+                <span>选择订单</span>
+                <i class="fas fa-times" onclick="closeOrderSelector()"></i>
+            </div>
+            <div class="order-selector-list">
+                <!-- 订单列表将通过 JavaScript 动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 修改页面加载时的初始化函数
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取用户信息
+            const userInfo = getUserInfo();
+            if (!userInfo) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 恢复聊天记录
+            restoreChatHistory();
+
+            // 如果没有聊天记录，显示欢迎消息
+            const chatContainer = document.getElementById('chatContainer');
+            if (!chatContainer.hasChildNodes()) {
+                const currentTime = new Date().toLocaleTimeString('zh-CN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false
+                });
+                
+                const welcomeMessage = `尊敬的${userInfo.username}${getGreeting()}，我是智能客服万小程，很高兴为您服务，请问有什么可以帮到您的？🌹`.trim().replace(/^\s+/, '');
+                
+                const welcomeHTML = `
+                    <div class="message service">
+                        <div class="avatar-container">
+                            <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="智能客服头像" class="avatar">
+                            <div class="time">${currentTime}</div>
+                        </div>
+                        <div class="message-content">${welcomeMessage}</div>
+                    </div>
+                `;
+                
+                chatContainer.innerHTML = welcomeHTML;
+                
+                // 保存欢迎消息到聊天历史
+                saveChatMessage('service', welcomeMessage, currentTime);
+            }
+        });
+
+        // 添加获取问候语的函数
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) {
+                return "早上好";
+            } else if (hour >= 12 && hour < 18) {
+                return "下午好";
+            } else if (hour >= 18 && hour < 23) {
+                return "晚上好";
+            } else {
+                return "深夜好";
+            }
+        }
+
+        // 添加获取用户信息的函数
+        function getUserInfo() {
+            try {
+                const userInfoStr = localStorage.getItem('currentUser');
+                if (userInfoStr) {
+                    return JSON.parse(userInfoStr);
+                }
+            } catch (e) {
+                console.error('获取用户信息失败:', e);
+            }
+            return null;
+        }
+
+        // 添加机器人回复生成函数
+        function generateBotResponse(message) {
+            // 这里可以添加更多的关键词匹配
+            if (message.includes('你好') || message.includes('您好')) {
+                return '您好！我是智能客服小万，很高兴为您服务。请问有什么可以帮您？';
+            } else if (message.includes('订单')) {
+                return '您可以在"全部订单"中查看您的所有订单记录，包括待付款、进行中、已完成和已退款的订单。';
+            } else if (message.includes('退款')) {
+                return '退款申请将在1-3个工作日内处理，退款金额将原路返回您的支付账户。';
+            } else if (message.includes('充值')) {
+                return '您可以通过以下方式充值：\n1. 支付宝\n2. 微信支付\n3. 银行卡\n请选择您想使用的支付方式。';
+            } else if (message.includes('投诉')) {
+                return '您的意见对我们很重要！请详细描述您遇到的问题，我们会认真处理并尽快回复您。';
+            } else {
+                return '抱歉，我可能没有完全理解您的意思。您可以：\n1. 换个方式描述\n2. 查看常见问题\n3. 转人工客服\n4. 告诉我更多细节';
+            }
+        }
+
+        // 修改发送消息函数
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim().replace(/^\s+/, '');
+            
+            if (!message) return;
+            
+            const chatContainer = document.getElementById('chatContainer');
+            const userInfo = getUserInfo();
+            const currentTime = new Date().toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            
+            // 添加用户消息
+            const userMessageHTML = `
+                <div class="message customer">
+                    <div class="message-content">${message}</div>
+                    <div class="avatar-container">
+                        <img src="${userInfo.avatarUrl || 'path/to/default-avatar.png'}" alt="用户头像" class="avatar">
+                        <div class="time">${currentTime}</div>
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.insertAdjacentHTML('beforeend', userMessageHTML);
+            
+            // 保存用户消息到聊天历史
+            saveChatMessage('user', message, currentTime);
+            
+            // 清空输入框
+            messageInput.value = '';
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // 模拟客服回复
+            setTimeout(() => {
+                const botResponse = generateBotResponse(message).trim().replace(/^\s+/, '');
+                const serviceMessageHTML = `
+                    <div class="message service">
+                        <div class="avatar-container">
+                            <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="智能客服头像" class="avatar">
+                            <div class="time">${currentTime}</div>
+                        </div>
+                        <div class="message-content">${botResponse}</div>
+                    </div>
+                `;
+                
+                chatContainer.insertAdjacentHTML('beforeend', serviceMessageHTML);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // 保存客服回复到聊天历史
+                saveChatMessage('service', botResponse, currentTime);
+            }, 1000);
+        }
+
+        // 添加保存聊天记录的函数
+        function saveChatMessage(type, content, time) {
+            const userInfo = getUserInfo();
+            if (!userInfo) return;
+
+            let chatHistory = JSON.parse(localStorage.getItem(`chatHistory_${userInfo.userId}`) || '[]');
+            chatHistory.push({
+                type: type,
+                content: content,
+                time: time,
+                timestamp: new Date().getTime()
+            });
+
+            localStorage.setItem(`chatHistory_${userInfo.userId}`, JSON.stringify(chatHistory));
+        }
+
+        // 添加恢复聊天记录的函数
+        function restoreChatHistory() {
+            const userInfo = getUserInfo();
+            if (!userInfo) return;
+
+            const chatHistory = JSON.parse(localStorage.getItem(`chatHistory_${userInfo.userId}`) || '[]');
+            const chatContainer = document.getElementById('chatContainer');
+            
+            chatHistory.forEach(message => {
+                const messageHTML = message.type === 'user' ? `
+                    <div class="message customer">
+                        <div class="message-content">${message.content}</div>
+                        <div class="avatar-container">
+                            <img src="${userInfo.avatarUrl || 'path/to/default-avatar.png'}" alt="用户头像" class="avatar">
+                            <div class="time">${message.time}</div>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="message service">
+                        <div class="avatar-container">
+                            <img src="https://s1.imagehub.cc/images/2024/11/08/310427fdd306fc5d1aaea5fb94728d50.jpg" alt="智能客服头像" class="avatar">
+                            <div class="time">${message.time}</div>
+                        </div>
+                        <div class="message-content">${message.content}</div>
+                    </div>
+                `;
+                
+                chatContainer.insertAdjacentHTML('beforeend', messageHTML);
+            });
+
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 添加回车发送功能
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // 阻止默认的换行行为
+                sendMessage();
+            }
+        });
+
+        // 修改表情和加号按钮的事件处理
+        function toggleEmojiPanel() {
+            const emojiPanel = document.getElementById('emojiPanel');
+            if (emojiPanel.style.display === 'block') {
+                emojiPanel.style.display = 'none';
+            } else {
+                emojiPanel.style.display = 'block';
+                // 如果加号面板是打开的，则关闭它
+                document.getElementById('plusPanel').style.display = 'none';
+            }
+        }
+
+        // 加号按钮点击事件
+        function togglePlusPanel() {
+            const plusPanel = document.getElementById('plusPanel');
+            if (plusPanel.style.display === 'block') {
+                plusPanel.style.display = 'none';
+            } else {
+                plusPanel.style.display = 'block';
+                // 如果表情面板是打开的，则关闭它
+                document.getElementById('emojiPanel').style.display = 'none';
+            }
+        }
+
+        // 插入表情
+        function insertEmoji(emoji) {
+            const messageInput = document.getElementById('messageInput');
+            messageInput.value += emoji;
+            // 关闭表情面板
+            document.getElementById('emojiPanel').style.display = 'none';
+        }
+
+        // 处理文件选择
+        function handleFileSelect(type) {
+            switch(type) {
+                case 'image':
+                    alert('暂不支持发送图片');
+                    break;
+                case 'camera':
+                    alert('暂不支持拍照功能');
+                    break;
+                case 'file':
+                    alert('暂不支持发送文件');
+                    break;
+            }
+            // 关闭加号面板
+            document.getElementById('plusPanel').style.display = 'none';
+        }
+
+        // 点击页面其他地方关闭面板
+        document.addEventListener('click', function(e) {
+            const emojiPanel = document.getElementById('emojiPanel');
+            const plusPanel = document.getElementById('plusPanel');
+            const emojiButton = document.querySelector('.emoji-button');
+            const plusButton = document.querySelector('.plus-button');
+
+            if (!emojiButton.contains(e.target) && !emojiPanel.contains(e.target)) {
+                emojiPanel.style.display = 'none';
+            }
+            if (!plusButton.contains(e.target) && !plusPanel.contains(e.target)) {
+                plusPanel.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

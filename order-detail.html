@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单详情</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: '微软雅黑', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .content {
+            margin-top: 60px;
+            padding: 15px;
+        }
+
+        .order-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-number {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .order-type {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .order-type-label {
+            color: #666;
+            margin-right: 4px;
+        }
+
+        .order-type-value {
+            color: #2196F3;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #E3F2FD;
+            color: #2196F3;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .service-info {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .service-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin-right: 12px;
+            object-fit: cover;
+        }
+
+        .service-details {
+            flex: 1;
+        }
+
+        .service-name {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .service-date {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .service-price {
+            color: #E41D1D;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .order-info {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 10px 0;
+            text-align: center;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background: #2196F3;
+            color: white;
+            border: none;
+        }
+
+        .secondary-button {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .danger-button {
+            background: #fff;
+            color: #E41D1D;
+            border: 1px solid #E41D1D;
+        }
+
+        .reschedule-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .reschedule-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .reschedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .reschedule-header span {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .reschedule-header i {
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .calendar {
+            margin-bottom: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .calendar-cell.available {
+            background: #f5f5f5;
+        }
+
+        .calendar-cell.selected {
+            background: #2196F3;
+            color: white;
+        }
+
+        .calendar-cell.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .reschedule-notice {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .notice-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .notice-item {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .reschedule-fee {
+            text-align: right;
+            font-size: 14px;
+            color: #E41D1D;
+            margin-bottom: 20px;
+        }
+
+        .reschedule-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .cancel-button,
+        .confirm-button {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .cancel-button {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .confirm-button {
+            background: #2196F3;
+            color: white;
+        }
+
+        .success-detail {
+            font-size: 14px;
+            color: #666;
+            margin: 15px 0;
+            text-align: left;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-button" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <h1 class="header-title">订单详情</h1>
+    </div>
+
+    <div class="content">
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-number">订单编号：XK731667367</div>
+                <div class="order-type">
+                    <span class="order-type-label">购买项目：</span>
+                    <span class="order-type-value">城市陪玩</span>
+                </div>
+                <div class="order-status">待使用</div>
+            </div>
+
+            <div class="service-info">
+                <img src="https://picsum.photos/200/200?random=1" alt="服务图片" class="service-image">
+                <div class="service-details">
+                    <div class="service-name">小甜甜</div>
+                    <div class="service-date">服务日期：2024/11/20</div>
+                    <div class="service-price">¥188</div>
+                </div>
+            </div>
+
+            <div class="order-info">
+                <div class="info-item">
+                    <span class="info-label">订单编号</span>
+                    <span class="info-value" id="orderNumber">XK731667367</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">支付流水号</span>
+                    <span class="info-value" id="paymentNumber">--</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">下单时间</span>
+                    <span class="info-value" id="orderTime">2024/11/9 01:58:57</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">支付方式</span>
+                    <span class="info-value" id="paymentMethod">微信支付</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">服务时长</span>
+                    <span class="info-value">2小时</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="action-button secondary-button" onclick="contactService()">联系客服</div>
+                <div class="action-button primary-button" onclick="showRescheduleModal()">改签日期</div>
+                <div class="action-button danger-button" onclick="applyRefund()">申请退款</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reschedule-modal" id="rescheduleModal">
+        <div class="reschedule-content">
+            <div class="reschedule-header">
+                <span>选择新的服务日期</span>
+                <i class="fas fa-times" onclick="closeRescheduleModal()"></i>
+            </div>
+            <div class="reschedule-body">
+                <div class="calendar" id="calendar">
+                    <!-- 日历将通过 JS 动态生成 -->
+                </div>
+                <div class="reschedule-notice">
+                    <div class="notice-title">改签说明：</div>
+                    <div class="notice-item">1. 每笔订单仅可改签一次</div>
+                    <div class="notice-item">2. 改签至7天内免费</div>
+                    <div class="notice-item">3. 改签至7天后收取10%手续费</div>
+                    <div class="notice-item">4. 原订单金额将原路退回</div>
+                </div>
+                <div class="reschedule-fee" id="rescheduleFee">
+                    改签费用：¥0
+                </div>
+                <div class="reschedule-buttons">
+                    <button class="cancel-button" onclick="closeRescheduleModal()">取消</button>
+                    <button class="confirm-button" onclick="confirmReschedule()">确认改签</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-modal" id="rescheduleSuccessModal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="success-message">改签申请已提交</div>
+            <div class="success-detail">
+                新的服务日期：<span id="newServiceDate"></span><br>
+                改签费用：<span id="finalFee"></span>
+            </div>
+            <button class="success-button" onclick="closeSuccessModal()">确定</button>
+        </div>
+    </div>
+
+    <script>
+        function contactService() {
+            window.location.href = 'customer-service.html';
+        }
+
+        function applyRefund() {
+            if (confirm('确认申请退款吗？退款将在1-3个工作日内原路返回')) {
+                // 显示退款成功提示
+                const successModal = document.createElement('div');
+                successModal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    text-align: center;
+                    width: 80%;
+                    max-width: 300px;
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                `;
+                
+                modalContent.innerHTML = `
+                    <div style="
+                        width: 50px;
+                        height: 50px;
+                        background: #52c41a;
+                        border-radius: 50%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin: 0 auto 15px;
+                    ">
+                        <i class="fas fa-check" style="color: white; font-size: 24px;"></i>
+                    </div>
+                    <div style="font-size: 16px; margin-bottom: 15px;">退款申请已提交</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 20px;">退款将在1-3个工作日内到账</div>
+                    <button onclick="location.href='orders.html'" style="
+                        background: #2196F3;
+                        color: white;
+                        padding: 8px 20px;
+                        border: none;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        cursor: pointer;
+                    ">返回订单列表</button>
+                `;
+                
+                successModal.appendChild(modalContent);
+                document.body.appendChild(successModal);
+                
+                // 3秒后自动跳转
+                setTimeout(() => {
+                    window.location.href = 'orders.html';
+                }, 3000);
+            }
+        }
+
+        // 生成17位随机数字的支付流水号
+        function generatePaymentNumber() {
+            let result = '';
+            for(let i = 0; i < 17; i++) {
+                result += Math.floor(Math.random() * 10);
+            }
+            return result;
+        }
+
+        // 页面加载时初始化订单信息
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderId = getQueryParam('id');
+            const orderInfo = JSON.parse(localStorage.getItem('lastOrder'));
+            
+            if (orderInfo) {
+                document.getElementById('orderNumber').textContent = orderInfo.orderNumber;
+                document.getElementById('paymentNumber').textContent = generatePaymentNumber();
+                document.getElementById('orderType').textContent = `购买项目：${orderInfo.type || '城市陪玩'}`;
+                document.getElementById('serviceName').textContent = orderInfo.service;
+                document.getElementById('serviceDate').textContent = `服务日期：${orderInfo.date}`;
+                document.getElementById('servicePrice').textContent = orderInfo.amount;
+                document.getElementById('orderTime').textContent = new Date().toLocaleString('zh-CN');
+                document.getElementById('paymentMethod').textContent = '微信支付';
+                
+                // 修改按钮显示
+                const actionButtons = document.querySelector('.action-buttons');
+                actionButtons.innerHTML = `
+                    <div class="action-button secondary-button" onclick="contactService()">联系客服</div>
+                    <div class="action-button primary-button" onclick="showRescheduleModal()">改签���期</div>
+                    <div class="action-button danger-button" onclick="applyRefund()">申请退款</div>
+                `;
+            }
+        });
+
+        // 显示改签弹窗
+        function showRescheduleModal() {
+            document.getElementById('rescheduleModal').style.display = 'block';
+            generateCalendar();
+        }
+
+        // 关闭改签弹窗
+        function closeRescheduleModal() {
+            document.getElementById('rescheduleModal').style.display = 'none';
+        }
+
+        // 生成日历
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const today = new Date();
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            
+            let calendarHTML = `
+                <div class="calendar-header">
+                    <span>${today.getFullYear()}年${today.getMonth() + 1}月</span>
+                </div>
+                <div class="calendar-grid">
+            `;
+            
+            // 添加星期标题
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekDays.forEach(day => {
+                calendarHTML += `<div class="calendar-cell">${day}</div>`;
+            });
+            
+            // 添加日期单元格
+            for (let i = 1; i <= daysInMonth; i++) {
+                const date = new Date(today.getFullYear(), today.getMonth(), i);
+                const isDisabled = date < today;
+                const cellClass = isDisabled ? 'disabled' : 'available';
+                
+                calendarHTML += `
+                    <div class="calendar-cell ${cellClass}" 
+                         onclick="${isDisabled ? '' : `selectDate(this, '${date.toISOString()}')`}">
+                        ${i}
+                    </div>
+                `;
+            }
+            
+            calendarHTML += '</div>';
+            calendar.innerHTML = calendarHTML;
+        }
+
+        // 选择日期
+        function selectDate(element, dateStr) {
+            // 移除之前的选中状态
+            document.querySelectorAll('.calendar-cell.selected').forEach(cell => {
+                cell.classList.remove('selected');
+            });
+            
+            // 添加新的选中状态
+            element.classList.add('selected');
+            
+            // 计算改签费用
+            calculateRescheduleFee(new Date(dateStr));
+        }
+
+        // 计算改签费用
+        function calculateRescheduleFee(newDate) {
+            const today = new Date();
+            const daysDiff = Math.floor((newDate - today) / (1000 * 60 * 60 * 24));
+            
+            const originalPrice = parseFloat(document.querySelector('.service-price').textContent.replace('¥', ''));
+            let fee = 0;
+            
+            if (daysDiff > 7) {
+                fee = originalPrice * 0.1;
+            }
+            
+            document.getElementById('rescheduleFee').textContent = `改签费用：¥${fee.toFixed(2)}`;
+        }
+
+        // 确认改签
+        function confirmReschedule() {
+            const selectedDate = document.querySelector('.calendar-cell.selected');
+            if (!selectedDate) {
+                alert('请选择新的服务日期');
+                return;
+            }
+            
+            const newDate = selectedDate.textContent;
+            const fee = document.getElementById('rescheduleFee').textContent;
+            const feeAmount = fee.split('：')[1].replace('¥', '');
+            
+            // 如果有改签费用，跳转到支付页面
+            if (parseFloat(feeAmount) > 0) {
+                const params = new URLSearchParams({
+                    service: '改签费用',
+                    date: `2024年${new Date().getMonth() + 1}月${newDate}日`,
+                    amount: feeAmount,
+                    isReschedule: 'true',
+                    originalOrderId: document.getElementById('orderNumber').textContent.split('：')[1],
+                    newServiceDate: `2024年${new Date().getMonth() + 1}月${newDate}日`
+                });
+                
+                window.location.href = `payment.html?${params.toString()}`;
+            } else {
+                // 如果没有改签费用，直接显示成功
+                showRescheduleSuccess(`2024年${new Date().getMonth() + 1}月${newDate}日`);
+                // 关闭改签弹窗
+                document.getElementById('rescheduleModal').style.display = 'none';
+            }
+        }
+
+        // 修改改签申请成功的显示方式
+        function showRescheduleSuccess(newDate) {
+            // 创建成功提示弹窗
+            const successModal = document.createElement('div');
+            successModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+            
+            successModal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    text-align: center;
+                    width: 80%;
+                    max-width: 300px;
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                ">
+                    <div style="
+                        width: 50px;
+                        height: 50px;
+                        background: #52c41a;
+                        border-radius: 50%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin: 0 auto 15px;
+                    ">
+                        <i class="fas fa-check" style="color: white; font-size: 24px;"></i>
+                    </div>
+                    <div style="font-size: 16px; margin-bottom: 15px;">改签申请已提交</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                        新的服务日期：${newDate}
+                    </div>
+                    <button onclick="window.location.href='orders.html'" style="
+                        background: #2196F3;
+                        color: white;
+                        padding: 8px 20px;
+                        border: none;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        cursor: pointer;
+                    ">返回订单列表</button>
+                </div>
+            `;
+            
+            document.body.appendChild(successModal);
+            
+            // 3秒后自动跳转并移除弹窗
+            setTimeout(() => {
+                document.body.removeChild(successModal);
+                window.location.href = 'orders.html';
+            }, 3000);
+        }
+
+        // 修改支付成功后的回调
+        function closeSuccessModal() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isReschedule = urlParams.get('isReschedule');
+            const newDate = urlParams.get('newServiceDate');
+            
+            if (isReschedule === 'true' && newDate) {
+                // 更新本地存储中的订单信息
+                const orderInfo = JSON.parse(localStorage.getItem('lastOrder'));
+                if (orderInfo) {
+                    orderInfo.date = newDate;
+                    localStorage.setItem('lastOrder', JSON.stringify(orderInfo));
+                }
+                
+                // 显示改签成功提示
+                const successModal = document.createElement('div');
+                successModal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                `;
+                
+                successModal.innerHTML = `
+                    <div style="
+                        background: white;
+                        padding: 20px;
+                        border-radius: 12px;
+                        text-align: center;
+                        width: 80%;
+                        max-width: 300px;
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    ">
+                        <div style="
+                            width: 50px;
+                            height: 50px;
+                            background: #52c41a;
+                            border-radius: 50%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            margin: 0 auto 15px;
+                        ">
+                            <i class="fas fa-check" style="color: white; font-size: 24px;"></i>
+                        </div>
+                        <div style="font-size: 16px; margin-bottom: 15px;">改签成功</div>
+                        <div style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                            新的服务日期：${newDate}
+                        </div>
+                        <button onclick="window.location.href='orders.html'" style="
+                            background: #2196F3;
+                            color: white;
+                            padding: 8px 20px;
+                            border: none;
+                            border-radius: 20px;
+                            font-size: 14px;
+                            cursor: pointer;
+                        ">返回订单列表</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(successModal);
+                
+                // 3秒后自动跳转
+                setTimeout(() => {
+                    window.location.href = 'orders.html';
+                }, 3000);
+            } else {
+                // 普通订单支付成功的处理
+                document.getElementById('successModal').style.display = 'none';
+                window.location.href = 'orders.html';
+            }
+        }
+    </script>
+</body>
+</html> 
